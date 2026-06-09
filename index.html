@@ -155,9 +155,10 @@ const Q = {
   marksFor: (cid, date) => sb.from("marks").select("*").eq("class_id", cid).eq("date", date),
   myStudentRow: () => sb.from("students").select("*").eq("profile_id", me_.id).maybeSingle(),
 };
-async function createClass(name, teacherId){
-  return sb.from("classes").insert({ name, teacher_id: teacherId||me_.id, school_id: me_.school_id });
+async function createClass(name, teacherId, appealsAllowed){
+  return sb.from("classes").insert({ name, teacher_id: teacherId||me_.id, school_id: me_.school_id, appeals_allowed: appealsAllowed!==false });
 }
+async function setClassAppeals(classId, allowed){ return sb.from("classes").update({ appeals_allowed: allowed }).eq("id", classId); }
 async function createStudent(name, email){
   const { data, error } = await sb.from("students")
     .insert({ full_name:name, email:email||null, school_id: me_.school_id, created_by: me_.id })
@@ -421,11 +422,14 @@ function openClassForm(){
       teachers.forEach(t=>{ const o=el("option"); o.value=t.id; o.textContent=(t.full_name||t.email||"User")+(t.id===me_.id?" (you)":""); if(t.id===me_.id)o.selected=true; teacherSel.appendChild(o); });
       ft.appendChild(teacherSel); sh.appendChild(ft);
     }
+    const apL=el("label"); apL.style.cssText="display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;margin:4px 0 2px;cursor:pointer";
+    const apCb=el("input"); apCb.type="checkbox"; apCb.checked=true; apCb.style.cssText="width:19px;height:19px;accent-color:var(--brand);flex:none";
+    apL.append(apCb, document.createTextNode("Allow students to appeal marks")); sh.appendChild(apL);
     const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
     const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
     const sv=el("button","btn sm","Create");
     sv.onclick=async()=>{ if(!nm.value.trim()){ toast("Name it"); return; }
-      const { error }=await createClass(nm.value.trim(), teacherSel?teacherSel.value:me_.id);
+      const { error }=await createClass(nm.value.trim(), teacherSel?teacherSel.value:me_.id, apCb.checked);
       if(error){ toast(error.message); return; } closeSheet(); toast("Class created"); render(); };
     A.append(sp,cn,sv); sh.appendChild(A);
   });
@@ -449,6 +453,13 @@ async function renderMarkGrid(wrap, cls){
   // date picker
   const df=el("div","field"); df.style.margin="14px 0 4px"; df.innerHTML=`<label>Date</label>`;
   const di=el("input"); di.type="date"; di.value=view.date; di.onchange=()=>{ view.date=di.value; render(); }; df.appendChild(di); wrap.appendChild(df);
+
+  // appeals toggle for this class
+  const apRow=el("label"); apRow.style.cssText="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:8px 0 4px;font-weight:600;font-size:13.5px;cursor:pointer";
+  const apCb=el("input"); apCb.type="checkbox"; apCb.checked=cls.appeals_allowed!==false; apCb.style.cssText="width:19px;height:19px;accent-color:var(--brand);flex:none";
+  apCb.onchange=async()=>{ const { error }=await setClassAppeals(cls.id, apCb.checked); if(error){ toast(error.message); apCb.checked=!apCb.checked; return; } cls.appeals_allowed=apCb.checked; toast(apCb.checked?"Students can appeal in this class":"Appeals turned off for this class"); };
+  apRow.append(apCb, document.createTextNode("Allow students to appeal marks in this class"));
+  wrap.appendChild(apRow);
 
   const { data:enr } = await Q.enrollments(cls.id);
   if(!enr || !enr.length){ wrap.appendChild(el("div","empty","No students in this class yet.<br>Go to <b>Roster</b> to add them.")); return; }
@@ -693,7 +704,7 @@ async function renderStudentHome(){
   const { data:meStudent } = await Q.myStudentRow();
   if(!meStudent){ wrap.appendChild(el("div","empty","You're signed in, but not linked to a student record yet.<br>Ask your rebbe or the office to add your email to the roster.")); return; }
   wrap.appendChild(el("h2",null,`Hi, ${esc((meStudent.full_name||"").split(" ")[0]||"there")}`));
-  const { data:marks } = await sb.from("marks").select("*, classes(name)").eq("student_id", meStudent.id).order("date",{ascending:false});
+  const { data:marks } = await sb.from("marks").select("*, classes(name, appeals_allowed)").eq("student_id", meStudent.id).order("date",{ascending:false});
   const { data:myAppeals } = await sb.from("appeals").select("*").eq("student_id", meStudent.id);
   const appealByMark={}; (myAppeals||[]).forEach(a=>appealByMark[a.mark_id]=a);
   if(!marks || !marks.length){ wrap.appendChild(el("div","empty","No attendance recorded yet.")); return; }
@@ -705,7 +716,7 @@ async function renderStudentHome(){
     row.append(dot,body);
     const ap=appealByMark[m.id];
     if(ap){ const pill=el("span","pill p-"+ap.status,ap.status); row.appendChild(pill); }
-    else { const b=el("button","btn ghost sm","Appeal"); b.onclick=()=>openAppeal(m, meStudent); row.appendChild(b); }
+    else if(m.classes && m.classes.appeals_allowed!==false){ const b=el("button","btn ghost sm","Appeal"); b.onclick=()=>openAppeal(m, meStudent); row.appendChild(b); }
     wrap.appendChild(row);
   });
 }
@@ -752,9 +763,6 @@ async function boot(){
       <button class="btn" style="max-width:200px;margin-top:18px" onclick="location.reload()">Try again</button></div>`;
   }
 }
-
-boot();
-  
 </script>
 </body>
 </html>
