@@ -93,7 +93,12 @@ const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 
 /* ---------- setup ---------- */
 const configured = !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
-const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let sb = null;
+try {
+  if (configured && window.supabase) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(e) { console.error("Supabase init failed:", e); }
 
 const STATUS = {
   ontime:{label:"On time",color:"var(--ontime)"},
@@ -614,15 +619,29 @@ function openAppeal(m, meStudent){
    =================================================================== */
 async function boot(){
   if(!configured){ renderConfigNeeded(); return; }
-  me_ = await loadMe();
-  render();
-  sb.auth.onAuthStateChange(async (_e, session)=>{
-    me_ = session ? await loadMe() : null;
-    view = {tab:null, classId:null, sub:"mark", date:todayKey()};
+  if(!sb){
+    app().innerHTML=`<div class="splash"><div class="mark">⚠️</div><h2>Couldn't connect</h2>
+      <p class="muted" style="max-width:320px;line-height:1.55">The Supabase library didn't load — check your internet connection, then reload. If it keeps happening, open <b>index.html</b> in a text editor and double-check the URL and key you pasted.</p></div>`;
+    return;
+  }
+  // show loading so the page is never blank
+  app().innerHTML=`<div class="splash"><div class="mark">ה</div><p class="muted" style="margin-top:12px">Loading…</p></div>`;
+  try {
+    me_ = await loadMe();
     render();
-  });
+    sb.auth.onAuthStateChange(async (_e, session)=>{
+      me_ = session ? await loadMe() : null;
+      view = {tab:null, classId:null, sub:"mark", date:todayKey()};
+      render();
+    });
+  } catch(e) {
+    console.error(e);
+    app().innerHTML=`<div class="splash"><div class="mark">⚠️</div><h2>Something went wrong</h2>
+      <p class="muted" style="max-width:320px;line-height:1.55">${esc(e.message||String(e))}<br><br>
+      Make sure you ran both SQL files in Supabase, and that your Project URL and anon key are correct.</p>
+      <button class="btn" style="max-width:200px;margin-top:18px" onclick="location.reload()">Try again</button></div>`;
+  }
 }
-boot();
 </script>
 </body>
 </html>
