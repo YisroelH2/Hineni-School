@@ -56,7 +56,7 @@
   .b-absent.on{background:var(--absent);border-color:var(--absent)} .b-excused.on{background:var(--excused);border-color:var(--excused)}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
   .seat{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 6px 9px;text-align:center;box-shadow:0 3px 10px -6px rgba(124,20,80,.3)}
-  .seat .face{width:58px;height:58px;border-radius:50%;object-fit:cover;margin:0 auto 6px;background:#f3dfeb;display:grid;place-items:center;color:var(--brand-light);font-weight:800;font-size:20px;border:3px solid transparent}
+  .seat .face{width:58px;height:58px;border-radius:50%;object-fit:cover;margin:0 auto 6px;background:#f3dfeb;display:grid;place-items:center;color:var(--brand-light);font-weight:800;font-size:20px;overflow:hidden;border:3px solid #eee}
   .seat.ontime .face{border-color:var(--ontime)} .seat.late .face{border-color:var(--late)}
   .seat.absent .face{border-color:var(--absent)} .seat.excused .face{border-color:var(--excused)}
   .seat .snm{font-size:11.5px;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -72,11 +72,11 @@
   .statusset{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
   .statusset button{flex:1;min-width:70px;padding:12px 6px;border-radius:12px;font-weight:700;font-size:13px;border:2px solid var(--line);background:#fff}
   .statusset button.on{color:#fff}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#2a0a1c;color:#fff;padding:11px 18px;border-radius:30px;font-weight:600;font-size:14px;z-index:80;opacity:0;transition:opacity 0.3s}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#2a0a1c;color:#fff;padding:11px 18px;border-radius:30px;font-weight:600;font-size:14px;z-index:80;opacity:0;transition:opacity .2s;max-width:90%}
   .toast.show{opacity:1}
   .empty{padding:44px 20px;text-align:center;color:var(--muted);line-height:1.5}
   .splash{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
-  .splash .mark{width:74px;height:74px;border-radius:22px;background:linear-gradient(150deg,var(--brand-light),var(--brand-dark));display:grid;place-items:center;color:#fff;font-size:36px;font-family:"Fraunces",serif}
+  .splash .mark{width:74px;height:74px;border-radius:22px;background:linear-gradient(150deg,var(--brand-light),var(--brand-dark));display:grid;place-items:center;color:#fff;font-size:36px;font-family:"Fraunces",serif;margin-bottom:18px;box-shadow:var(--shadow)}
   a{color:var(--brand)}
 </style>
 </head>
@@ -88,7 +88,7 @@
 /* ===================================================================
    CONFIG — paste your two values from Supabase here (see SETUP.md)
    =================================================================== */
-const SUPABASE_URL = "https://gybrpedshqzckjsmpkpl.supabase.co";        // e.g. https://abcde.supabase.co
+const SUPABASE_URL = "https://gybrpedshqzckjsmpkpl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5YnJwZWRzaHF6Y2tqc21wa3BsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTYwMDksImV4cCI6MjA5NjUzMjAwOX0.DMBPJ6kr7ViO0WN299MvX7P-4PTHWha1w6N-nD33u68";
 
 /* ---------- setup ---------- */
@@ -121,7 +121,7 @@ function todayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.g
 function fmtDate(k){ const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}); }
 function initials(name){ const p=(name||"").trim().split(/\s+/); return ((p[0]||"?")[0]+(p[1]?p[1][0]:"")).toUpperCase(); }
 let toastT;
-function toast(msg){ let t=$("#toast"); if(!t){ t=el("div","toast"); t.id="toast"; document.body.appendChild(t); } t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),3000); }
+function toast(msg){ let t=$("#toast"); if(!t){ t=el("div","toast"); t.id="toast"; document.body.appendChild(t); } t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2400); }
 function buzz(){ if(navigator.vibrate) navigator.vibrate(8); }
 
 /* ---------- sheet ---------- */
@@ -307,15 +307,15 @@ function renderLogin(){
     btn.disabled=false; setMode(mode);
     if(res.error){
       let msg=res.error.message;
-      if(/invalid login/i.test(msg)) msg="Wrong email or password. New here? Tap "Create account".";
-      if(/already registered/i.test(msg)) msg="That email already has an account — tap "Sign in".";
+      if(/invalid login/i.test(msg)) msg="Wrong email or password. New here? Tap “Create account”.";
+      if(/already registered/i.test(msg)) msg="That email already has an account — tap “Sign in”.";
       toast(msg); return;
     }
     if(mode==="signup" && res.data && res.data.user && !res.data.session){
       // email confirmation is still ON in Supabase
       card.innerHTML=`<div class="center" style="padding:8px 4px"><div style="font-size:34px">📬</div>
         <h3 style="margin:10px 0 6px">Confirm your email</h3>
-        <p class="muted" style="line-height:1.5">Check your inbox to confirm, then sign in. (Tip for the admin: turn off "Confirm email" in Supabase to skip this.)</p></div>`;
+        <p class="muted" style="line-height:1.5">Check your inbox to confirm, then sign in. (Tip for the admin: turn off “Confirm email” in Supabase to skip this.)</p></div>`;
       return;
     }
     // success → onAuthStateChange loads the profile and renders
@@ -331,10 +331,10 @@ function topbar(){
   t.innerHTML = `<div class="logo">Hineni<small>School</small></div><div class="sp"></div>
     <span class="badge">${esc(me_.role)}</span>`;
   const key=el("button","icon-btn"); key.title="Set password"; key.style.marginLeft="6px";
-  key.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M4.5 10.5V4h15v9"/></svg>`;
+  key.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="m10 13 8-8"/><path d="m15 5 3 3"/><path d="m18 8 2-2"/></svg>`;
   key.onclick=openSetPassword;
   const out=el("button","icon-btn"); out.title="Sign out"; out.style.marginLeft="6px";
-  out.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 3l4 4m0 0l-4 4m4-4H9"/></svg>`;
+  out.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>`;
   out.onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
   t.append(key, out);
   return t;
@@ -481,7 +481,7 @@ async function renderMarkGrid(wrap, cls){
   });
   wrap.appendChild(grid);
   const tip=el("div","muted center"); tip.style.cssText="font-size:12px;margin-top:14px;line-height:1.5";
-  tip.innerHTML=`Pick a status above, then tap faces to mark them.<br>Tap ⋯ on a student for minutes-late or "left early".`;
+  tip.innerHTML=`Pick a status above, then tap faces to mark them.<br>Tap ⋯ on a student for minutes-late or “left early”.`;
   wrap.appendChild(tip);
 }
 function openMarkDetail(cls, st, m){
@@ -492,7 +492,7 @@ function openMarkDetail(cls, st, m){
     const minField=el("div","field"); minField.style.display=(status==="late")?"block":"none";
     minField.innerHTML=`<label>Minutes late</label>`; const minInp=el("input"); minInp.type="number"; minInp.min=0; minInp.value=mins; minField.appendChild(minInp);
     STATUS_KEYS.forEach(k=>{ const b=el("button",(status===k?"on":""),STATUS[k].label); if(status===k)b.style.background=STATUS[k].color,b.style.borderColor=STATUS[k].color;
-      b.onclick=()=>{ status=k; [...set.children].forEach(c=>{c.className="";c.style.background="";c.style.borderColor="";}); b.className="on"; b.style.background=STATUS[k].color; b.style.borderColor=STATUS[k].color; };
+      b.onclick=()=>{ status=k; [...set.children].forEach(c=>{c.className="";c.style.background="";c.style.borderColor="";}); b.className="on"; b.style.background=STATUS[k].color; b.style.borderColor=STATUS[k].color; minField.style.display=(k==="late")?"block":"none"; };
       set.appendChild(b); });
     sh.appendChild(el("div","field",`<label>Status</label>`)).appendChild(set);
     sh.appendChild(minField);
@@ -558,8 +558,8 @@ function openStudentForm(cls){
 function openBulkAdd(cls){
   openSheet(async sh=>{
     sh.appendChild(el("h3",null,"Bulk add students"));
-    sh.appendChild(el("div","sheet-sub",`Paste one student per line. To add their login email too, put it after a comma:<br><span style="font-family:monospace;font-size:12px">Levi Cohen<br>Mendel Katz<br>Shua Berkowitz, shua@example.com</span>`));
-    const ta=el("textarea"); ta.rows=8; ta.placeholder="Levi Cohen\nMendel Katz\nShua Berkowitz, shua@example.com"; ta.style.cssText="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:12px;font-family:monospace;font-size:13px;line-height:1.5"; sh.appendChild(ta);
+    sh.appendChild(el("div","sheet-sub",`Paste one student per line. To add their login email too, put it after a comma:<br><span style="font-family:monospace;font-size:12px">Levi Cohen<br>Mendel Katz, mendel@example.com</span>`));
+    const ta=el("textarea"); ta.rows=8; ta.placeholder="Levi Cohen\nMendel Katz\nShua Berkowitz, shua@example.com"; ta.style.cssText="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;line-height:1.5;resize:vertical"; sh.appendChild(ta);
     const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
     const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
     const sv=el("button","btn sm","Add all");
@@ -617,7 +617,7 @@ function openStudentFormStandalone(){
    PEOPLE (principal) — assign roles
    =================================================================== */
 async function renderPeople(wrap){
-  wrap.appendChild(el("div","card",`<div style="font-size:13px;line-height:1.5" class="muted">Anyone who signs in appears here. Set who is a <b>teacher</b> or <b>principal</b>. Everyone else stays <b>student</b>.</div>`));
+  wrap.appendChild(el("div","card",`<div style="font-size:13px;line-height:1.5" class="muted">Anyone who signs in appears here. Set who is a <b>teacher</b> or <b>principal</b>. Everyone else stays a student.</div>`));
   const { data:people, error } = await Q.people();
   if(error){ wrap.appendChild(el("div","empty",esc(error.message))); return; }
   wrap.appendChild(el("div","sec","People ("+people.length+")"));
@@ -701,7 +701,7 @@ async function renderStudentHome(){
   marks.forEach(m=>{ const row=el("div","listrow");
     const dot=el("div"); dot.style.cssText=`width:12px;height:12px;border-radius:50%;flex:none;background:${STATUS[m.status].color}`;
     const body=el("div"); body.style.flex="1";
-    body.innerHTML=`<div class="nm">${esc((m.classes&&m.classes.name)||"Class")}</div><div class="sub">${fmtDate(m.date)} · ${STATUS[m.status].label}${m.minutes_late?` · ${m.minutes_late}m`:""}</div>`;
+    body.innerHTML=`<div class="nm">${esc((m.classes&&m.classes.name)||"Class")}</div><div class="sub">${fmtDate(m.date)} · ${STATUS[m.status].label}${m.minutes_late?` · ${m.minutes_late}m`:""}${m.left_early?" · left early":""}</div>`;
     row.append(dot,body);
     const ap=appealByMark[m.id];
     if(ap){ const pill=el("span","pill p-"+ap.status,ap.status); row.appendChild(pill); }
@@ -712,7 +712,7 @@ async function renderStudentHome(){
 function openAppeal(m, meStudent){
   openSheet(sh=>{
     sh.appendChild(el("h3",null,"Appeal this mark"));
-    sh.appendChild(el("div","muted",`<div style="margin:-6px 0 12px;font-size:13px;line-height:1.45">${esc((m.classes&&m.classes.name)||"Class")} · ${fmtDate(m.date)} · marked <b>${STATUS[m.status].label}</b></div>`));
+    sh.appendChild(el("div","muted",`<div style="margin:-6px 0 12px;font-size:13px;line-height:1.45">${esc((m.classes&&m.classes.name)||"Class")} · ${fmtDate(m.date)} · marked <b>${STATUS[m.status].label}</b>.<br>Explain what happened — your rebbe will review it.</div>`));
     const fr=el("div","field"); fr.innerHTML=`<label>Your reason</label>`; const ta=el("textarea"); ta.rows=4; ta.placeholder="e.g. I was there but came in the side door…"; fr.appendChild(ta); sh.appendChild(fr);
     const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
     const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
@@ -731,7 +731,7 @@ async function boot(){
   if(!configured){ renderConfigNeeded(); return; }
   if(!sb){
     app().innerHTML=`<div class="splash"><div class="mark">⚠️</div><h2>Couldn't connect</h2>
-      <p class="muted" style="max-width:320px;line-height:1.55">The Supabase library didn't load — check your internet connection, then reload. If it keeps happening, open <b>index.html</b> in a text editor and make sure the URL and API key are correct.</p></div>`;
+      <p class="muted" style="max-width:320px;line-height:1.55">The Supabase library didn't load — check your internet connection, then reload. If it keeps happening, open <b>index.html</b> in a text editor and double-check the URL and key you pasted.</p></div>`;
     return;
   }
   // show loading so the page is never blank
