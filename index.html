@@ -88,8 +88,8 @@
 /* ===================================================================
    CONFIG — paste your two values from Supabase here (see SETUP.md)
    =================================================================== */
-const SUPABASE_URL = "https://gybrpedshqzckjsmpkpl.supabase.co";        // e.g. https://abcde.supabase.co
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5YnJwZWRzaHF6Y2tqc21wa3BsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTYwMDksImV4cCI6MjA5NjUzMjAwOX0.DMBPJ6kr7ViO0WN299MvX7P-4PTHWha1w6N-nD33u68";
+const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";        // e.g. https://abcde.supabase.co
+const SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_PUBLIC_KEY_HERE";
 
 /* ---------- setup ---------- */
 const configured = !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
@@ -170,6 +170,43 @@ async function enroll(classId, studentId, order){
 async function unenroll(classId, studentId){
   return sb.from("enrollments").delete().eq("class_id",classId).eq("student_id",studentId);
 }
+
+// --- Oholei Torah Shiur Daled class list (from the personal tracker) ---
+const OHOLEI_CLASSES = ["Chassidus Boker","Shacharis","Nigleh A","Girsa","Chassidus Erev","Dorm (curfew)"];
+async function loadOholeiSchedule(){
+  const { data:existing } = await Q.classes();
+  const have = new Set((existing||[]).map(c=>c.name.toLowerCase()));
+  const rows = OHOLEI_CLASSES.filter(n=>!have.has(n.toLowerCase()))
+    .map(n=>({ name:n, teacher_id:me_.id, school_id:me_.school_id }));
+  if(!rows.length) return { skipped:true };
+  const { error } = await sb.from("classes").insert(rows);
+  return { error, added:rows.length };
+}
+
+// --- bulk add students to a class (paste "Name" or "Name, email" per line) ---
+async function bulkAddStudents(classId, text, startOrder){
+  const lines = text.split("\n").map(l=>l.trim()).filter(Boolean);
+  if(!lines.length) return { count:0 };
+  const toInsert = lines.map(l=>{
+    const i=l.indexOf(","); const name=(i<0?l:l.slice(0,i)).trim(); const email=(i<0?"":l.slice(i+1)).trim();
+    return { full_name:name, email:email||null, school_id:me_.school_id, created_by:me_.id };
+  });
+  const { data:created, error } = await sb.from("students").insert(toInsert).select();
+  if(error) throw error;
+  const enrollRows = created.map((s,i)=>({ class_id:classId, student_id:s.id, sort_order:(startOrder||0)+i }));
+  const { error:e2 } = await sb.from("enrollments").insert(enrollRows);
+  if(e2) throw e2;
+  return { count:created.length };
+}
+
+// --- arrange seats alphabetically (sets sort_order + a 5-wide grid position) ---
+async function arrangeAlphabetical(classId){
+  const { data:enr } = await Q.enrollments(classId);
+  const sorted=[...(enr||[])].sort((a,b)=>(a.students.full_name||"~").localeCompare(b.students.full_name||"~"));
+  const rows = sorted.map((e,i)=>({ class_id:classId, student_id:e.student_id, sort_order:i, seat_row:Math.floor(i/5), seat_col:i%5 }));
+  if(rows.length) await sb.from("enrollments").upsert(rows, { onConflict:"class_id,student_id" });
+}
+
 async function setMark(classId, studentId, date, status, minutes, leftEarly){
   return sb.from("marks").upsert(
     { class_id:classId, student_id:studentId, date, status, minutes_late:minutes||0, left_early:!!leftEarly, marked_by: me_.id },
@@ -242,24 +279,48 @@ function renderLogin(){
   const s=el("div","splash");
   s.innerHTML = `<div class="mark">ה</div>
     <h1 style="color:var(--brand-dark);font-size:30px">Hineni</h1>
-    <div class="muted" style="letter-spacing:.14em;font-weight:700;font-size:11px;text-transform:uppercase;margin-top:4px">School Attendance</div>
-    <p class="muted" style="margin:16px 0 22px;max-width:320px;line-height:1.5">Sign in with your email — we'll send you a one-tap login link. No password to remember.</p>`;
-  const card=el("div","card"); card.style.maxWidth="360px"; card.style.width="100%";
-  const f=el("div","field"); f.innerHTML=`<label>Email address</label>`;
-  const inp=el("input"); inp.type="email"; inp.placeholder="you@example.com"; inp.autocomplete="email"; f.appendChild(inp);
-  const btn=el("button","btn","Send me a login link");
+    <div class="muted" style="letter-spacing:.14em;font-weight:700;font-size:11px;text-transform:uppercase;margin-top:4px">School Attendance</div>`;
+  const card=el("div","card"); card.style.maxWidth="360px"; card.style.width="100%"; card.style.marginTop="20px";
+  let mode="signin";
+  const seg=el("div","tabs"); seg.style.cssText="padding:0;margin-bottom:16px;justify-content:center";
+  const t1=el("button","tab on","Sign in"); const t2=el("button","tab","Create account");
+  seg.append(t1,t2); card.appendChild(seg);
+  const fe=el("div","field"); fe.innerHTML=`<label>Email</label>`; const email=el("input"); email.type="email"; email.placeholder="you@example.com"; email.autocomplete="email"; fe.appendChild(email); card.appendChild(fe);
+  const fp=el("div","field"); fp.innerHTML=`<label>Password</label>`; const pw=el("input"); pw.type="password"; pw.placeholder="at least 6 characters"; pw.autocomplete="current-password"; fp.appendChild(pw); card.appendChild(fp);
+  const btn=el("button","btn","Sign in"); card.appendChild(btn);
+  const hint=el("div","muted center"); hint.style.cssText="font-size:12px;margin-top:12px;line-height:1.5"; card.appendChild(hint);
+  function setMode(m){ mode=m;
+    t1.className="tab"+(m==="signin"?" on":""); t2.className="tab"+(m==="signup"?" on":"");
+    btn.textContent = m==="signin"?"Sign in":"Create account";
+    pw.autocomplete = m==="signin"?"current-password":"new-password";
+    hint.innerHTML = m==="signup" ? "New here? Pick any password — you'll use it to log back in." : "";
+  }
+  t1.onclick=()=>setMode("signin"); t2.onclick=()=>setMode("signup");
   btn.onclick=async()=>{
-    const email=inp.value.trim(); if(!email){ toast("Enter your email"); return; }
-    btn.textContent="Sending…"; btn.disabled=true;
-    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.href.split("#")[0] } });
-    btn.disabled=false; btn.textContent="Send me a login link";
-    if(error){ toast(error.message); return; }
-    card.innerHTML = `<div class="center" style="padding:8px 4px">
-      <div style="font-size:34px">📬</div>
-      <h3 style="margin:10px 0 6px">Check your email</h3>
-      <p class="muted" style="line-height:1.5">We sent a login link to <b>${esc(email)}</b>. Tap it on this device to sign in.</p></div>`;
+    const e=email.value.trim(), p=pw.value;
+    if(!e||!p){ toast("Enter your email and a password"); return; }
+    if(mode==="signup" && p.length<6){ toast("Password must be at least 6 characters"); return; }
+    btn.disabled=true; btn.textContent="…";
+    const res = mode==="signin"
+      ? await sb.auth.signInWithPassword({ email:e, password:p })
+      : await sb.auth.signUp({ email:e, password:p });
+    btn.disabled=false; setMode(mode);
+    if(res.error){
+      let msg=res.error.message;
+      if(/invalid login/i.test(msg)) msg="Wrong email or password. New here? Tap “Create account”.";
+      if(/already registered/i.test(msg)) msg="That email already has an account — tap “Sign in”.";
+      toast(msg); return;
+    }
+    if(mode==="signup" && res.data && res.data.user && !res.data.session){
+      // email confirmation is still ON in Supabase
+      card.innerHTML=`<div class="center" style="padding:8px 4px"><div style="font-size:34px">📬</div>
+        <h3 style="margin:10px 0 6px">Confirm your email</h3>
+        <p class="muted" style="line-height:1.5">Check your inbox to confirm, then sign in. (Tip for the admin: turn off “Confirm email” in Supabase to skip this.)</p></div>`;
+      return;
+    }
+    // success → onAuthStateChange loads the profile and renders
   };
-  card.append(f, btn); s.appendChild(card); app().appendChild(s);
+  s.appendChild(card); app().appendChild(s);
 }
 
 /* ===================================================================
@@ -269,11 +330,28 @@ function topbar(){
   const t=el("div","topbar");
   t.innerHTML = `<div class="logo">Hineni<small>School</small></div><div class="sp"></div>
     <span class="badge">${esc(me_.role)}</span>`;
-  const out=el("button","icon-btn"); out.title="Sign out";
+  const key=el("button","icon-btn"); key.title="Set password"; key.style.marginLeft="6px";
+  key.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="m10 13 8-8"/><path d="m15 5 3 3"/><path d="m18 8 2-2"/></svg>`;
+  key.onclick=openSetPassword;
+  const out=el("button","icon-btn"); out.title="Sign out"; out.style.marginLeft="6px";
   out.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>`;
   out.onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
-  t.appendChild(out);
+  t.append(key, out);
   return t;
+}
+function openSetPassword(){
+  openSheet(sh=>{
+    sh.appendChild(el("h3",null,"Set / change password"));
+    sh.appendChild(el("div","sheet-sub","Set a password for your account so you can sign back in. At least 6 characters."));
+    const fp=el("div","field"); fp.innerHTML=`<label>New password</label>`; const pw=el("input"); pw.type="password"; pw.autocomplete="new-password"; pw.placeholder="••••••"; fp.appendChild(pw); sh.appendChild(fp);
+    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
+    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
+    const sv=el("button","btn sm","Save");
+    sv.onclick=async()=>{ if(pw.value.length<6){ toast("At least 6 characters"); return; }
+      const { error }=await sb.auth.updateUser({ password:pw.value });
+      if(error){ toast(error.message); return; } closeSheet(); toast("Password set ✓"); };
+    A.append(sp,cn,sv); sh.appendChild(A);
+  });
 }
 function tabsBar(items){
   const bar=el("div","tabs");
@@ -310,6 +388,13 @@ async function render(){
    =================================================================== */
 async function renderClasses(wrap){
   const add=el("button","btn","＋ New class"); add.onclick=openClassForm; wrap.appendChild(add);
+  const load=el("button","btn ghost","📋 Load Oholei Torah Shiur Daled schedule"); load.style.marginTop="10px";
+  load.onclick=async()=>{ load.textContent="Loading…"; const r=await loadOholeiSchedule();
+    if(r.skipped) toast("Those classes already exist");
+    else if(r.error) toast(r.error.message);
+    else toast(`Added ${r.added} classes`);
+    render(); };
+  wrap.appendChild(load);
   const { data:classes, error } = await Q.classes();
   if(error){ wrap.appendChild(el("div","empty",esc(error.message))); return; }
   if(!classes.length){ wrap.appendChild(el("div","empty","No classes yet.<br>Create one to start marking.")); return; }
@@ -378,7 +463,9 @@ async function renderMarkGrid(wrap, cls){
 
   const allBtn=el("button","btn ghost sm","✓ Mark everyone on time"); allBtn.style.marginBottom="12px";
   allBtn.onclick=async()=>{ for(const e of enr){ if(!markMap[e.student_id]) await setMark(cls.id,e.student_id,view.date,"ontime",0,false); } buzz(); toast("Marked present"); render(); };
-  wrap.appendChild(allBtn);
+  const seatBtn=el("button","btn ghost sm","⊞ Seat layout (A→Z)"); seatBtn.style.cssText="margin-bottom:12px;margin-left:8px";
+  seatBtn.onclick=async()=>{ seatBtn.textContent="Arranging…"; await arrangeAlphabetical(cls.id); buzz(); toast("Seats arranged A→Z"); render(); };
+  const btnRow=el("div"); btnRow.style.cssText="display:flex;flex-wrap:wrap"; btnRow.append(allBtn,seatBtn); wrap.appendChild(btnRow);
 
   const grid=el("div","grid");
   enr.forEach(e=>{
@@ -423,6 +510,8 @@ function openMarkDetail(cls, st, m){
 async function renderRoster(wrap, cls){
   const addNew=el("button","btn","＋ Add a new student"); addNew.style.marginTop="14px";
   addNew.onclick=()=>openStudentForm(cls); wrap.appendChild(addNew);
+  const bulk=el("button","btn ghost","📋 Bulk add a list of names"); bulk.style.marginTop="10px";
+  bulk.onclick=()=>openBulkAdd(cls); wrap.appendChild(bulk);
 
   const { data:enr } = await Q.enrollments(cls.id);
   const enrolledIds=new Set((enr||[]).map(e=>e.student_id));
@@ -463,6 +552,27 @@ function openStudentForm(cls){
     sv.onclick=async()=>{ try{ const st=await createStudent(nm.value.trim(), em.value.trim());
       await enroll(cls.id, st.id, 999); closeSheet(); toast("Student added"); render();
     }catch(e){ toast(e.message); } };
+    A.append(sp,cn,sv); sh.appendChild(A);
+  });
+}
+function openBulkAdd(cls){
+  openSheet(async sh=>{
+    sh.appendChild(el("h3",null,"Bulk add students"));
+    sh.appendChild(el("div","sheet-sub",`Paste one student per line. To add their login email too, put it after a comma:<br><span style="font-family:monospace;font-size:12px">Levi Cohen<br>Mendel Katz, mendel@example.com</span>`));
+    const ta=el("textarea"); ta.rows=8; ta.placeholder="Levi Cohen\nMendel Katz\nShua Berkowitz, shua@example.com"; ta.style.cssText="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;line-height:1.5;resize:vertical"; sh.appendChild(ta);
+    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
+    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
+    const sv=el("button","btn sm","Add all");
+    sv.onclick=async()=>{
+      if(!ta.value.trim()){ toast("Paste some names"); return; }
+      sv.textContent="Adding…"; sv.disabled=true;
+      try{
+        const { data:cur } = await Q.enrollments(cls.id);
+        const startOrder = cur ? cur.length : 0;
+        const r = await bulkAddStudents(cls.id, ta.value, startOrder);
+        closeSheet(); toast(`Added ${r.count} students`); render();
+      }catch(e){ sv.disabled=false; sv.textContent="Add all"; toast(e.message); }
+    };
     A.append(sp,cn,sv); sh.appendChild(A);
   });
 }
@@ -642,10 +752,6 @@ async function boot(){
       <button class="btn" style="max-width:200px;margin-top:18px" onclick="location.reload()">Try again</button></div>`;
   }
 }
-
-
-boot();
-  
 </script>
 </body>
 </html>
