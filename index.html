@@ -2,82 +2,146 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#ffffff">
 <title>Hineni School</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --brand:#a51c66; --brand-dark:#7c1450; --brand-light:#c83f87;
-    --ontime:#15c79a; --late:#f5731f; --absent:#1b1b22; --excused:#a51c66;
-    --ink:#33222c; --muted:#8a7682; --line:#f0d9e6; --bg:#fff6fb; --card:#fff;
-    --r:18px; --shadow:0 10px 30px -12px rgba(124,20,80,.28);
+    --bg:#f3eef6; --surface:#ffffff; --surface2:#faf6fc;
+    --ink:#241826; --muted:#8d8298; --faint:#b7adc0; --line:#ece4f0;
+    --brand:#b81e63; --brand2:#8c1149; --brand-soft:#fbe7f1; --brand-tint:#fdf3f8;
+    --ontime:#0fb481; --ontime-bg:#e6f8f1; --late:#f59331; --late-bg:#fdf0e2;
+    --absent:#3c3744; --absent-bg:#eceaef; --excused:#b81e63; --excused-bg:#fbe7f1;
+    --shadow-sm:0 1px 2px rgba(30,12,28,.05);
+    --shadow:0 2px 6px rgba(30,12,28,.04), 0 14px 30px -16px rgba(120,30,80,.22);
+    --r:20px; --r-sm:14px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{margin:0;font-family:"Hanken Grotesk",system-ui,sans-serif;color:var(--ink);
-    background:radial-gradient(120% 80% at 50% 0,#fff 0,var(--bg) 60%);min-height:100dvh}
-  .app{max-width:560px;margin:0 auto;padding:0 0 90px}
-  h1,h2,h3,h4{font-family:"Fraunces",serif;margin:0}
-  button{font-family:inherit;cursor:pointer;border:none;background:none}
-  input,select,textarea{font-family:inherit;font-size:16px}
-  .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;
-    padding:14px 16px;background:rgba(255,246,251,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  .topbar .logo{font-family:"Fraunces",serif;font-weight:700;font-size:20px;color:var(--brand-dark)}
-  .topbar .logo small{display:block;font-family:"Hanken Grotesk";font-weight:600;font-size:10px;color:var(--brand-light);letter-spacing:.12em;text-transform:uppercase}
-  .topbar .sp{flex:1}
-  .badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:#fbe9f3;color:var(--brand-dark);text-transform:capitalize}
-  .icon-btn{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);color:var(--brand-dark)}
-  .wrap{padding:16px}
-  .tabs{display:flex;gap:6px;padding:10px 16px 0;overflow-x:auto;scrollbar-width:none}
-  .tabs::-webkit-scrollbar{display:none}
-  .tab{flex:none;padding:9px 15px;border-radius:11px;font-weight:700;font-size:14px;color:var(--muted);background:#fff;border:1px solid var(--line);white-space:nowrap}
-  .tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
-  .row{display:flex;align-items:center;gap:12px}
-  .btn{width:100%;padding:14px;border-radius:13px;font-weight:700;font-size:15px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
-  .btn.ghost{background:#fff;color:var(--brand-dark);border:1.5px solid var(--line)}
-  .btn.sm{width:auto;padding:9px 14px;font-size:14px;border-radius:11px}
-  .field{margin-bottom:12px}
-  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
-  .field input,.field select,.field textarea{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:12px;outline:none;background:#fff}
-  .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand-light)}
+  html,body{margin:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink);background:var(--bg);
+    min-height:100dvh;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:"Fraunces",serif;margin:0;letter-spacing:-.01em}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
+  .app{max-width:600px;margin:0 auto;min-height:100dvh;position:relative}
+
+  /* ---------- header ---------- */
+  .hdr{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;
+    padding:14px 18px calc(14px);background:rgba(255,255,255,.86);backdrop-filter:saturate(1.4) blur(12px);
+    border-bottom:1px solid var(--line)}
+  .hdr .brand{font-family:"Fraunces",serif;font-weight:700;font-size:21px;color:var(--brand);line-height:1}
+  .hdr .brand .heb{color:var(--brand2);margin-inline-start:5px;font-weight:600;opacity:.8}
+  .hdr .sub{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+  .hdr .sp{flex:1}
+  .hdr select{border:1px solid var(--line);border-radius:10px;padding:7px 9px;font-size:12.5px;font-weight:700;color:var(--brand2);background:var(--surface2);max-width:150px}
+  .iconbtn{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--surface2);border:1px solid var(--line);color:var(--brand2);flex:none}
+  .iconbtn:active{transform:scale(.94)}
+
+  /* ---------- content + nav ---------- */
+  .content{padding:18px 16px 120px}
+  .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:45;display:flex;justify-content:center;
+    background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+  .bottomnav .inner{display:flex;width:100%;max-width:600px;justify-content:space-around}
+  .navbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;color:var(--faint);position:relative}
+  .navbtn svg{width:23px;height:23px}
+  .navbtn span{font-size:10.5px;font-weight:700;letter-spacing:.01em}
+  .navbtn.on{color:var(--brand)}
+  .navbtn .dot{position:absolute;top:2px;right:calc(50% - 16px);width:8px;height:8px;border-radius:50%;background:var(--late);border:1.5px solid #fff}
+
+  /* ---------- cards / bits ---------- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+  .h-title{font-size:24px;font-weight:700;color:var(--ink);margin-bottom:2px}
+  .h-sub{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+  .sec{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:22px 4px 10px}
   .muted{color:var(--muted)} .center{text-align:center}
-  .sec{font-family:"Fraunces",serif;font-weight:600;font-size:15px;color:var(--brand-dark);margin:18px 2px 10px}
-  .listrow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px}
-  .listrow .nm{font-weight:700} .listrow .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
-  .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#f3dfeb;flex:none;display:grid;place-items:center;color:var(--brand-light);font-weight:800;font-size:16px;overflow:hidden}
-  /* marking grid */
-  .brush{display:flex;gap:7px;margin:4px 0 14px;position:sticky;top:64px;z-index:20;background:linear-gradient(180deg,var(--bg) 70%,transparent);padding:6px 0}
-  .brush button{flex:1;padding:11px 4px;border-radius:12px;font-weight:800;font-size:13px;border:2px solid transparent;background:#fff;box-shadow:0 2px 8px rgba(124,20,80,.08);color:var(--ink)}
-  .brush button.on{color:#fff}
-  .b-ontime.on{background:var(--ontime);border-color:var(--ontime)} .b-late.on{background:var(--late);border-color:var(--late)}
-  .b-absent.on{background:var(--absent);border-color:var(--absent)} .b-excused.on{background:var(--excused);border-color:var(--excused)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
-  .seat{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 6px 9px;text-align:center;box-shadow:0 3px 10px -6px rgba(124,20,80,.3)}
-  .seat .face{width:58px;height:58px;border-radius:50%;object-fit:cover;margin:0 auto 6px;background:#f3dfeb;display:grid;place-items:center;color:var(--brand-light);font-weight:800;font-size:20px;overflow:hidden;border:3px solid #eee}
-  .seat.ontime .face{border-color:var(--ontime)} .seat.late .face{border-color:var(--late)}
-  .seat.absent .face{border-color:var(--absent)} .seat.excused .face{border-color:var(--excused)}
+  .btn{width:100%;padding:15px;border-radius:14px;font-weight:700;font-size:15px;background:var(--brand);color:#fff;
+    display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 18px -8px rgba(184,30,99,.5)}
+  .btn:active{transform:scale(.99)}
+  .btn.ghost{background:var(--surface);color:var(--brand2);border:1.5px solid var(--line);box-shadow:none}
+  .btn.soft{background:var(--brand-soft);color:var(--brand2);box-shadow:none}
+  .btn.sm{width:auto;padding:10px 16px;font-size:14px;border-radius:12px}
+  .btn.tiny{width:auto;padding:7px 12px;font-size:13px;border-radius:10px;font-weight:700}
+  .row{display:flex;align-items:center;gap:12px}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:13px;outline:none;background:var(--surface2)}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand);background:#fff}
+  .listrow{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+  .listrow:active{background:var(--surface2)}
+  .listrow .nm{font-weight:700;font-size:15.5px} .listrow .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .avatar{width:46px;height:46px;border-radius:14px;object-fit:cover;background:var(--brand-soft);flex:none;display:grid;place-items:center;color:var(--brand);font-weight:800;font-size:16px;overflow:hidden;background-size:cover;background-position:center}
+  .chev{color:var(--faint);flex:none}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:30px}
+  .p-pending{background:var(--late-bg);color:#b5670a}.p-approved{background:var(--ontime-bg);color:#0a8b64}.p-denied{background:#fdeaef;color:#b81e63}
+  .tag{font-size:11px;font-weight:800;padding:4px 9px;border-radius:8px;background:var(--brand-soft);color:var(--brand2)}
+  .empty{padding:50px 24px;text-align:center;color:var(--muted);line-height:1.6}
+  .empty .big{font-size:40px;margin-bottom:10px}
+
+  /* ---------- marking grid ---------- */
+  .markhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+  .datepick{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 10px}
+  .datepick input{border:none;background:none;font-weight:700;font-size:14px;outline:none;padding:4px}
+  .toggle{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin:10px 0;font-weight:600;font-size:13.5px;cursor:pointer}
+  .toggle input{width:20px;height:20px;accent-color:var(--brand);flex:none}
+  .brush{display:flex;gap:7px;position:sticky;top:62px;z-index:30;padding:10px 0;background:linear-gradient(180deg,var(--bg) 72%,rgba(243,238,246,0))}
+  .brush button{flex:1;padding:11px 3px;border-radius:13px;font-weight:800;font-size:12.5px;border:2px solid var(--line);background:#fff;color:var(--ink);transition:transform .06s}
+  .brush button:active{transform:scale(.96)}
+  .brush button[data-k=ontime].on{background:var(--ontime);border-color:var(--ontime);color:#fff}
+  .brush button[data-k=late].on{background:var(--late);border-color:var(--late);color:#fff}
+  .brush button[data-k=absent].on{background:var(--absent);border-color:var(--absent);color:#fff}
+  .brush button[data-k=excused].on{background:var(--excused);border-color:var(--excused);color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:6px}
+  .seat{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:9px 6px 10px;text-align:center;box-shadow:var(--shadow-sm);transition:transform .07s,box-shadow .15s}
+  .seat:active{transform:scale(.96)}
+  .seat .face{width:60px;height:60px;border-radius:16px;object-fit:cover;margin:0 auto 7px;background:var(--brand-soft);display:grid;place-items:center;color:var(--brand);font-weight:800;font-size:20px;overflow:hidden;border:3px solid transparent;background-size:cover;background-position:center}
+  .seat.ontime{border-color:var(--ontime);background:var(--ontime-bg)} .seat.ontime .face{border-color:var(--ontime)}
+  .seat.late{border-color:var(--late);background:var(--late-bg)} .seat.late .face{border-color:var(--late)}
+  .seat.absent{border-color:var(--absent);background:var(--absent-bg)} .seat.absent .face{border-color:var(--absent)}
+  .seat.excused{border-color:var(--excused);background:var(--excused-bg)} .seat.excused .face{border-color:var(--excused)}
   .seat .snm{font-size:11.5px;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .seat .ss{font-size:10px;font-weight:700;margin-top:2px;height:12px}
-  .seat .dots{position:absolute;top:5px;right:6px;font-size:14px;color:var(--muted);line-height:1}
-  /* sheet */
-  .scrim{position:fixed;inset:0;background:rgba(40,10,28,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
-  .sheet{background:#fff;width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
-  .sheet h3{font-size:19px;margin-bottom:14px}
+  .seat .ss{font-size:10px;font-weight:800;margin-top:2px;min-height:12px}
+  .seat .more{position:absolute;top:4px;right:5px;width:22px;height:22px;border-radius:8px;display:grid;place-items:center;color:var(--faint);font-size:15px;line-height:1}
+
+  /* report card stat tiles */
+  .stats{display:flex;gap:8px}
+  .stat{flex:1;background:var(--surface2);border-radius:13px;padding:11px 4px;text-align:center}
+  .stat b{display:block;font-family:"Fraunces",serif;font-weight:700;font-size:22px;line-height:1.05}
+  .stat span{font-size:10.5px;font-weight:700;color:var(--muted)}
+  .barwrap{height:9px;border-radius:6px;background:var(--line);overflow:hidden;display:flex;margin-top:12px}
+  .barwrap i{height:100%}
+
+  /* ---------- sheet ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(36,12,30,.42);z-index:60;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+  @keyframes fade{from{opacity:0}}
+  .sheet{background:#fff;width:100%;max-width:600px;border-radius:26px 26px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;animation:up .22s cubic-bezier(.2,.8,.2,1)}
+  @keyframes up{from{transform:translateY(40px)}}
+  .sheet .grab{width:38px;height:4px;border-radius:3px;background:var(--line);margin:6px auto 14px}
+  .sheet h3{font-size:20px;margin-bottom:4px}
+  .sheet .ssub{font-size:13px;color:var(--muted);line-height:1.45;margin-bottom:14px}
   .sheet-actions{display:flex;gap:10px;align-items:center;margin-top:18px}
-  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px}
-  .p-pending{background:#fff3e6;color:#b5530a}.p-approved{background:#e3f9f1;color:#0f876a}.p-denied{background:#fde7ee;color:#c11447}
-  .statusset{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
-  .statusset button{flex:1;min-width:70px;padding:12px 6px;border-radius:12px;font-weight:700;font-size:13px;border:2px solid var(--line);background:#fff}
+  .statusset{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .statusset button{padding:14px 6px;border-radius:14px;font-weight:800;font-size:14px;border:2px solid var(--line);background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:7px}
+  .statusset button .d{width:11px;height:11px;border-radius:50%}
   .statusset button.on{color:#fff}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#2a0a1c;color:#fff;padding:11px 18px;border-radius:30px;font-weight:600;font-size:14px;z-index:80;opacity:0;transition:opacity .2s;max-width:90%}
+  .stepper{display:flex;align-items:center;background:var(--surface2);border:1.5px solid var(--line);border-radius:13px;overflow:hidden}
+  .stepper button{width:50px;height:50px;font-size:24px;font-weight:700;color:var(--brand)}
+  .stepper .v{flex:1;text-align:center;font-weight:800;font-size:18px}
+  .stepper .u{font-size:12px;color:var(--muted);padding-inline-end:14px;font-weight:700}
+
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#241826;color:#fff;padding:12px 18px;border-radius:30px;font-weight:600;font-size:13.5px;z-index:90;opacity:0;transition:opacity .2s;max-width:88%;text-align:center}
   .toast.show{opacity:1}
-  .empty{padding:44px 20px;text-align:center;color:var(--muted);line-height:1.5}
-  .splash{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
-  .splash .mark{width:74px;height:74px;border-radius:22px;background:linear-gradient(150deg,var(--brand-light),var(--brand-dark));display:grid;place-items:center;color:#fff;font-size:36px;font-family:"Fraunces",serif;margin-bottom:18px;box-shadow:var(--shadow)}
+  .splash{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
+  .splash .mark{width:78px;height:78px;border-radius:24px;background:linear-gradient(150deg,var(--brand),var(--brand2));display:grid;place-items:center;color:#fff;font-size:38px;font-family:"Fraunces",serif;margin-bottom:20px;box-shadow:0 16px 34px -12px rgba(184,30,99,.55)}
+  .tabseg{display:flex;background:var(--surface2);border:1px solid var(--line);border-radius:13px;padding:4px;gap:4px;margin:14px 0}
+  .tabseg button{flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:14px;color:var(--muted)}
+  .tabseg button.on{background:#fff;color:var(--brand);box-shadow:var(--shadow-sm)}
   a{color:var(--brand)}
+  .linkbtn{font-size:12.5px;font-weight:800;color:var(--brand);padding:4px 0}
 </style>
 </head>
 <body>
@@ -85,687 +149,443 @@
 <script>
 "use strict";
 
-/* ===================================================================
-   CONFIG — paste your two values from Supabase here (see SETUP.md)
-   =================================================================== */
+/* ===== CONFIG ===== */
 const SUPABASE_URL = "https://gybrpedshqzckjsmpkpl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5YnJwZWRzaHF6Y2tqc21wa3BsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTYwMDksImV4cCI6MjA5NjUzMjAwOX0.DMBPJ6kr7ViO0WN299MvX7P-4PTHWha1w6N-nD33u68";
 
-/* ---------- setup ---------- */
 const configured = !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
-let sb = null;
-try {
-  if (configured && window.supabase) {
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-} catch(e) { console.error("Supabase init failed:", e); }
+let sb=null; try{ if(configured && window.supabase) sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }catch(e){ console.error(e); }
 
-const STATUS = {
-  ontime:{label:"On time",color:"var(--ontime)"},
-  late:{label:"Late",color:"var(--late)"},
-  absent:{label:"Absent",color:"var(--absent)"},
-  excused:{label:"Excused",color:"var(--excused)"}
+const STATUS={ ontime:{label:"On time",c:"var(--ontime)"}, late:{label:"Late",c:"var(--late)"},
+  absent:{label:"Absent",c:"var(--absent)"}, excused:{label:"Excused",c:"var(--excused)"} };
+const SKEYS=["ontime","late","absent","excused"];
+const OHOLEI=[["Chassidus Boker","07:30"],["Shacharis","09:30"],["Nigleh A","11:00"],["Girsa","15:45"],["Chassidus Erev","20:00"],["Dorm (curfew)","23:45"]];
+const ICON={
+  schools:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/></svg>',
+  classes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M19 3v18"/></svg>',
+  students:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.5a3 3 0 0 1 0 5.6"/><path d="M18 14.5a5.5 5.5 0 0 1 2.5 4.5"/></svg>',
+  people:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>',
+  appeals:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 5c4-2 9 2 13 0v9c-4 2-9-2-13 0"/></svg>',
+  report:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>'
 };
-const STATUS_KEYS = ["ontime","late","absent","excused"];
 
-let me_ = null;          // my profile {id, role, school_id, full_name}
-let view = {tab:null, classId:null, sub:"mark", date:todayKey()};
-const faceCache = new Map();
+let me_=null, schoolsCache=[];
+let view={ tab:null, classId:null, sub:"mark", date:today(), brush:"ontime", school:null };
+let pendingAppeals=0;
+const faceCache=new Map();
 
-/* ---------- tiny DOM helpers ---------- */
-const $ = s => document.querySelector(s);
-const app = () => $("#app");
-function el(tag, cls, html){ const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+/* ===== helpers ===== */
+const $=s=>document.querySelector(s);
+const app=()=>$("#app"), content=()=>$("#content");
+function el(t,c,h){ const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e; }
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
-function todayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function today(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
 function fmtDate(k){ const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}); }
-function initials(name){ const p=(name||"").trim().split(/\s+/); return ((p[0]||"?")[0]+(p[1]?p[1][0]:"")).toUpperCase(); }
-let toastT;
-function toast(msg){ let t=$("#toast"); if(!t){ t=el("div","toast"); t.id="toast"; document.body.appendChild(t); } t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2400); }
-function buzz(){ if(navigator.vibrate) navigator.vibrate(8); }
+function initials(n){ const p=(n||"").trim().split(/\s+/); return ((p[0]||"?")[0]+(p[1]?p[1][0]:"")).toUpperCase(); }
+let toastT; function toast(m){ let t=$("#toast"); if(!t){ t=el("div","toast"); t.id="toast"; document.body.appendChild(t);} t.textContent=m; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2400); }
+function buzz(){ if(navigator.vibrate) navigator.vibrate(7); }
+function schoolId(){ return me_.role==="admin" ? view.school : me_.school_id; }
 
-/* ---------- sheet ---------- */
-function openSheet(build){
-  closeSheet();
-  const scrim=el("div","scrim"); scrim.id="scrim";
-  const sheet=el("div","sheet");
-  scrim.onclick=e=>{ if(e.target===scrim) closeSheet(); };
-  build(sheet); scrim.appendChild(sheet); document.body.appendChild(scrim);
-}
+function openSheet(build){ closeSheet(); const sc=el("div","scrim"); sc.id="scrim"; const sh=el("div","sheet"); sh.appendChild(el("div","grab")); sc.onclick=e=>{ if(e.target===sc) closeSheet(); }; build(sh); sc.appendChild(sh); document.body.appendChild(sc); }
 function closeSheet(){ const s=$("#scrim"); if(s) s.remove(); }
+function sheetActions(sh, saveLabel, onSave, danger){
+  const A=el("div","sheet-actions");
+  if(danger){ const d=el("button","linkbtn",danger.label); d.style.color="var(--late)"; d.onclick=danger.fn; A.appendChild(d); }
+  const sp=el("div"); sp.style.flex="1"; A.appendChild(sp);
+  const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
+  const sv=el("button","btn sm",saveLabel); sv.onclick=onSave;
+  A.append(cn,sv); sh.appendChild(A); return sv;
+}
 
-/* ===================================================================
-   DATA LAYER
-   =================================================================== */
+/* ===== data ===== */
 async function loadMe(){
-  const { data:{ user } } = await sb.auth.getUser();
-  if(!user) return null;
-  let { data } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
-  if(!data){ // profile row may lag right after first sign-in
-    await new Promise(r=>setTimeout(r,800));
-    ({ data } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle());
-  }
+  const { data:{ user } }=await sb.auth.getUser(); if(!user) return null;
+  let { data }=await sb.from("profiles").select("*").eq("id",user.id).maybeSingle();
+  if(!data){ await new Promise(r=>setTimeout(r,700)); ({ data }=await sb.from("profiles").select("*").eq("id",user.id).maybeSingle()); }
   return data;
 }
-const Q = {
-  classes: () => sb.from("classes").select("*").order("name"),
-  students: () => sb.from("students").select("*").order("full_name"),
-  people: () => sb.from("profiles").select("*").order("full_name"),
-  enrollments: (cid) => sb.from("enrollments").select("*, students(*)").eq("class_id", cid).order("sort_order"),
-  marksFor: (cid, date) => sb.from("marks").select("*").eq("class_id", cid).eq("date", date),
-  myStudentRow: () => sb.from("students").select("*").eq("profile_id", me_.id).maybeSingle(),
+const Q={
+  classes:()=>{ let q=sb.from("classes").select("*").order("start_time",{nullsFirst:false}).order("name"); if(me_.role==="admin") q=q.eq("school_id",schoolId()); return q; },
+  students:()=>{ let q=sb.from("students").select("*").order("full_name"); if(me_.role==="admin") q=q.eq("school_id",schoolId()); return q; },
+  people:()=>{ let q=sb.from("profiles").select("*").order("full_name"); if(me_.role==="admin") q=q.eq("school_id",schoolId()); return q; },
+  enroll:(cid)=>sb.from("enrollments").select("*, students(*)").eq("class_id",cid).order("sort_order"),
+  marks:(cid,date)=>sb.from("marks").select("*").eq("class_id",cid).eq("date",date),
+  myStudent:()=>sb.from("students").select("*").eq("profile_id",me_.id).maybeSingle()
 };
-async function createClass(name, teacherId, appealsAllowed){
-  return sb.from("classes").insert({ name, teacher_id: teacherId||me_.id, school_id: me_.school_id, appeals_allowed: appealsAllowed!==false });
-}
-async function setClassAppeals(classId, allowed){ return sb.from("classes").update({ appeals_allowed: allowed }).eq("id", classId); }
-async function createStudent(name, email){
-  const { data, error } = await sb.from("students")
-    .insert({ full_name:name, email:email||null, school_id: me_.school_id, created_by: me_.id })
-    .select().single();
-  if(error) throw error; return data;
-}
-async function enroll(classId, studentId, order){
-  return sb.from("enrollments").insert({ class_id:classId, student_id:studentId, sort_order:order||0 });
-}
-async function unenroll(classId, studentId){
-  return sb.from("enrollments").delete().eq("class_id",classId).eq("student_id",studentId);
-}
-
-// --- Oholei Torah Shiur Daled class list (from the personal tracker) ---
-const OHOLEI_CLASSES = ["Chassidus Boker","Shacharis","Nigleh A","Girsa","Chassidus Erev","Dorm (curfew)"];
-async function loadOholeiSchedule(){
-  const { data:existing } = await Q.classes();
-  const have = new Set((existing||[]).map(c=>c.name.toLowerCase()));
-  const rows = OHOLEI_CLASSES.filter(n=>!have.has(n.toLowerCase()))
-    .map(n=>({ name:n, teacher_id:me_.id, school_id:me_.school_id }));
-  if(!rows.length) return { skipped:true };
-  const { error } = await sb.from("classes").insert(rows);
-  return { error, added:rows.length };
-}
-
-// --- bulk add students to a class (paste "Name" or "Name, email" per line) ---
-async function bulkAddStudents(classId, text, startOrder){
-  const lines = text.split("\n").map(l=>l.trim()).filter(Boolean);
-  if(!lines.length) return { count:0 };
-  const toInsert = lines.map(l=>{
-    const i=l.indexOf(","); const name=(i<0?l:l.slice(0,i)).trim(); const email=(i<0?"":l.slice(i+1)).trim();
-    return { full_name:name, email:email||null, school_id:me_.school_id, created_by:me_.id };
-  });
-  const { data:created, error } = await sb.from("students").insert(toInsert).select();
-  if(error) throw error;
-  const enrollRows = created.map((s,i)=>({ class_id:classId, student_id:s.id, sort_order:(startOrder||0)+i }));
-  const { error:e2 } = await sb.from("enrollments").insert(enrollRows);
-  if(e2) throw e2;
-  return { count:created.length };
-}
-
-// --- arrange seats alphabetically (sets sort_order + a 5-wide grid position) ---
-async function arrangeAlphabetical(classId){
-  const { data:enr } = await Q.enrollments(classId);
-  const sorted=[...(enr||[])].sort((a,b)=>(a.students.full_name||"~").localeCompare(b.students.full_name||"~"));
-  const rows = sorted.map((e,i)=>({ class_id:classId, student_id:e.student_id, sort_order:i, seat_row:Math.floor(i/5), seat_col:i%5 }));
-  if(rows.length) await sb.from("enrollments").upsert(rows, { onConflict:"class_id,student_id" });
-}
-
-async function setMark(classId, studentId, date, status, minutes, leftEarly){
-  return sb.from("marks").upsert(
-    { class_id:classId, student_id:studentId, date, status, minutes_late:minutes||0, left_early:!!leftEarly, marked_by: me_.id },
-    { onConflict:"class_id,student_id,date" }
-  );
-}
-async function setRole(profileId, role){ return sb.from("profiles").update({ role, school_id: me_.school_id }).eq("id", profileId); }
-async function createAppeal(markId, studentId, message){
-  return sb.from("appeals").insert({ mark_id:markId, student_id:studentId, message });
-}
-async function resolveAppeal(appeal, status, response, newStatus){
-  if(status==="approved" && newStatus){
-    await sb.from("marks").update({ status:newStatus }).eq("id", appeal.mark_id);
-  }
-  return sb.from("appeals").update({ status, response:response||"", resolved_by:me_.id, resolved_at:new Date().toISOString() }).eq("id", appeal.id);
-}
-async function listAppeals(){
-  return sb.from("appeals").select("*, marks(*, classes(name), students(full_name))").order("created_at",{ascending:false});
-}
+async function createClass(name,teacherId,appeals,start){ return sb.from("classes").insert({ name, teacher_id:teacherId||me_.id, school_id:schoolId(), appeals_allowed:appeals!==false, start_time:start||null }); }
+async function updateClass(id,patch){ return sb.from("classes").update(patch).eq("id",id); }
+async function deleteClass(id){ return sb.from("classes").delete().eq("id",id); }
+async function setClassAppeals(id,a){ return sb.from("classes").update({appeals_allowed:a}).eq("id",id); }
+async function createStudent(name,email){ const { data,error }=await sb.from("students").insert({ full_name:name, email:email||null, school_id:schoolId(), created_by:me_.id }).select().single(); if(error) throw error; return data; }
+async function enroll(cid,sid,order){ return sb.from("enrollments").insert({ class_id:cid, student_id:sid, sort_order:order||0 }); }
+async function unenroll(cid,sid){ return sb.from("enrollments").delete().eq("class_id",cid).eq("student_id",sid); }
+async function setMark(cid,sid,date,status,mins,left){ return sb.from("marks").upsert({ class_id:cid, student_id:sid, date, status, minutes_late:mins||0, left_early:!!left, marked_by:me_.id },{ onConflict:"class_id,student_id,date" }); }
+async function clearMark(cid,sid,date){ return sb.from("marks").delete().eq("class_id",cid).eq("student_id",sid).eq("date",date); }
+async function setRole(pid,role){ return sb.from("profiles").update({ role, school_id:schoolId() }).eq("id",pid); }
+async function createAppeal(mid,sid,msg){ return sb.from("appeals").insert({ mark_id:mid, student_id:sid, message:msg }); }
+async function resolveAppeal(a,status,resp,newStatus){ if(status==="approved"&&newStatus) await sb.from("marks").update({ status:newStatus }).eq("id",a.mark_id); return sb.from("appeals").update({ status, response:resp||"", resolved_by:me_.id, resolved_at:new Date().toISOString() }).eq("id",a.id); }
+async function listAppeals(){ let q=sb.from("appeals").select("*, marks(*, classes(name,school_id), students(full_name))").order("created_at",{ascending:false}); const { data }=await q; if(me_.role==="admin"&&view.school) return (data||[]).filter(a=>a.marks&&a.marks.classes&&a.marks.classes.school_id===view.school); return data||[]; }
+async function refreshPending(){ try{ const a=await listAppeals(); pendingAppeals=(a||[]).filter(x=>x.status==="pending").length; }catch(e){ pendingAppeals=0; } updateNavDot(); }
+async function listSchools(){ const { data }=await sb.from("schools").select("*").order("name"); return data||[]; }
+async function createSchool(name){ return sb.from("schools").insert({ name }).select().single(); }
 
 /* photos */
-function resizeImage(file, max=420, q=0.82){
-  return new Promise(resolve=>{
-    const img=new Image(), url=URL.createObjectURL(file);
-    img.onload=()=>{ const s=Math.min(1,max/Math.max(img.width,img.height));
-      const w=Math.round(img.width*s), h=Math.round(img.height*s);
-      const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
-      cv.getContext("2d").drawImage(img,0,0,w,h); URL.revokeObjectURL(url);
-      cv.toBlob(b=>resolve(b||file),"image/jpeg",q); };
-    img.onerror=()=>{ URL.revokeObjectURL(url); resolve(file); };
-    img.src=url;
-  });
-}
-async function uploadFace(student, file){
-  const blob = await resizeImage(file);
-  const path = `${student.school_id}/${student.id}.jpg`;
-  const { error } = await sb.storage.from("faces").upload(path, blob, { upsert:true, contentType:"image/jpeg" });
-  if(error) throw error;
-  await sb.from("students").update({ photo_path: path }).eq("id", student.id);
-  faceCache.delete(path);
-  return path;
-}
-async function faceUrl(path){
-  if(!path) return null;
-  const c=faceCache.get(path); if(c && c.exp>Date.now()) return c.url;
-  const { data } = await sb.storage.from("faces").createSignedUrl(path, 3600);
-  if(!data) return null;
-  faceCache.set(path, { url:data.signedUrl, exp:Date.now()+3500*1000 });
-  return data.signedUrl;
-}
-function fillFace(imgEl, path, name){
-  imgEl.textContent = initials(name);
-  if(path) faceUrl(path).then(u=>{ if(u){ const im=new Image(); im.onload=()=>{ imgEl.textContent=""; imgEl.style.backgroundImage=`url(${u})`; imgEl.style.backgroundSize="cover"; imgEl.style.backgroundPosition="center"; }; im.src=u; } });
-}
+function resizeImg(file,max=420,q=.82){ return new Promise(res=>{ const i=new Image(),u=URL.createObjectURL(file); i.onload=()=>{ const s=Math.min(1,max/Math.max(i.width,i.height)); const w=Math.round(i.width*s),h=Math.round(i.height*s); const cv=document.createElement("canvas"); cv.width=w;cv.height=h; cv.getContext("2d").drawImage(i,0,0,w,h); URL.revokeObjectURL(u); cv.toBlob(b=>res(b||file),"image/jpeg",q); }; i.onerror=()=>{ URL.revokeObjectURL(u); res(file); }; i.src=u; }); }
+async function uploadFace(st,file){ const blob=await resizeImg(file); const path=`${st.school_id}/${st.id}.jpg`; const { error }=await sb.storage.from("faces").upload(path,blob,{ upsert:true, contentType:"image/jpeg" }); if(error) throw error; await sb.from("students").update({ photo_path:path }).eq("id",st.id); faceCache.delete(path); return path; }
+async function faceUrl(path){ if(!path) return null; const c=faceCache.get(path); if(c&&c.exp>Date.now()) return c.url; const { data }=await sb.storage.from("faces").createSignedUrl(path,3600); if(!data) return null; faceCache.set(path,{url:data.signedUrl,exp:Date.now()+3500*1000}); return data.signedUrl; }
+function fillFace(node,path,name){ node.textContent=initials(name); if(path) faceUrl(path).then(u=>{ if(u){ const im=new Image(); im.onload=()=>{ node.textContent=""; node.style.backgroundImage=`url(${u})`; }; im.src=u; } }); }
 
-/* ===================================================================
-   AUTH SCREENS
-   =================================================================== */
-function renderConfigNeeded(){
-  app().innerHTML = `<div class="splash">
-    <div class="mark">ה</div>
-    <h2 style="color:var(--brand-dark)">Almost there</h2>
-    <p class="muted" style="max-width:340px;margin-top:10px;line-height:1.55">
-      This app needs to be connected to your Supabase project. Open the app file and paste your
-      <b>Project URL</b> and <b>anon key</b> into the CONFIG section at the top, then re-upload. See <b>SETUP.md</b>.</p>
-  </div>`;
-}
+/* schedule preset / bulk / seats / auto-late */
+async function loadOholei(){ const { data:ex }=await Q.classes(); const have=new Set((ex||[]).map(c=>c.name.toLowerCase())); const rows=OHOLEI.filter(([n])=>!have.has(n.toLowerCase())).map(([n,s])=>({ name:n, teacher_id:me_.id, school_id:schoolId(), start_time:s, appeals_allowed:true })); if(!rows.length) return {skipped:true}; const { error }=await sb.from("classes").insert(rows); return { error, added:rows.length }; }
+async function bulkAdd(cid,text,start){ const lines=text.split("\n").map(l=>l.trim()).filter(Boolean); if(!lines.length) return {count:0}; const ins=lines.map(l=>{ const i=l.indexOf(","); const name=(i<0?l:l.slice(0,i)).trim(); const email=(i<0?"":l.slice(i+1)).trim(); return { full_name:name, email:email||null, school_id:schoolId(), created_by:me_.id }; }); const { data:cr,error }=await sb.from("students").insert(ins).select(); if(error) throw error; const er=cr.map((s,i)=>({ class_id:cid, student_id:s.id, sort_order:(start||0)+i })); const { error:e2 }=await sb.from("enrollments").insert(er); if(e2) throw e2; return { count:cr.length }; }
+async function arrangeAZ(cid){ const { data:e }=await Q.enroll(cid); const s=[...(e||[])].sort((a,b)=>(a.students.full_name||"~").localeCompare(b.students.full_name||"~")); const rows=s.map((x,i)=>({ class_id:cid, student_id:x.student_id, sort_order:i, seat_row:Math.floor(i/5), seat_col:i%5 })); if(rows.length) await sb.from("enrollments").upsert(rows,{ onConflict:"class_id,student_id" }); }
+function minsLateNow(cls){ if(!cls.start_time||view.date!==today()) return 0; const [h,m]=cls.start_time.split(":").map(Number); const st=new Date(); st.setHours(h,m,0,0); return Math.max(0,Math.round((Date.now()-st.getTime())/60000)); }
+
+/* points */
+function pts(marks,cls){ let p=0; marks.forEach(m=>{ if(m.status==="ontime")p+=Number(cls.pts_ontime); else if(m.status==="absent")p+=Number(cls.pts_absent); else if(m.status==="late")p+=Number(cls.pts_per_min)*(m.minutes_late||0); }); return p; }
+function fmtPts(p){ return (p>=0?"+":"")+(Math.round(p*100)/100); }
+
+/* ===== auth screens ===== */
+function configNeeded(){ app().innerHTML=`<div class="splash"><div class="mark">ה</div><h2>Almost there</h2><p class="muted" style="max-width:320px;margin-top:10px;line-height:1.55">Paste your Supabase URL and anon key into the CONFIG section of this file.</p></div>`; }
 function renderLogin(){
-  app().innerHTML = "";
+  app().innerHTML="";
   const s=el("div","splash");
-  s.innerHTML = `<div class="mark">ה</div>
-    <h1 style="color:var(--brand-dark);font-size:30px">Hineni</h1>
-    <div class="muted" style="letter-spacing:.14em;font-weight:700;font-size:11px;text-transform:uppercase;margin-top:4px">School Attendance</div>`;
-  const card=el("div","card"); card.style.maxWidth="360px"; card.style.width="100%"; card.style.marginTop="20px";
+  s.innerHTML=`<div class="mark">ה</div><h1 style="color:var(--brand2);font-size:32px">Hineni</h1><div class="muted" style="letter-spacing:.16em;font-weight:800;font-size:11px;text-transform:uppercase;margin-top:5px">School Attendance</div>`;
+  const card=el("div","card"); card.style.cssText="max-width:360px;width:100%;margin-top:22px";
   let mode="signin";
-  const seg=el("div","tabs"); seg.style.cssText="padding:0;margin-bottom:16px;justify-content:center";
-  const t1=el("button","tab on","Sign in"); const t2=el("button","tab","Create account");
-  seg.append(t1,t2); card.appendChild(seg);
+  const seg=el("div","tabseg"); const t1=el("button","on","Sign in"); const t2=el("button",null,"Create account"); seg.append(t1,t2); card.appendChild(seg);
   const fe=el("div","field"); fe.innerHTML=`<label>Email</label>`; const email=el("input"); email.type="email"; email.placeholder="you@example.com"; email.autocomplete="email"; fe.appendChild(email); card.appendChild(fe);
-  const fp=el("div","field"); fp.innerHTML=`<label>Password</label>`; const pw=el("input"); pw.type="password"; pw.placeholder="at least 6 characters"; pw.autocomplete="current-password"; fp.appendChild(pw); card.appendChild(fp);
+  const fp=el("div","field"); fp.innerHTML=`<label>Password</label>`; const pw=el("input"); pw.type="password"; pw.placeholder="at least 6 characters"; fp.appendChild(pw); card.appendChild(fp);
   const btn=el("button","btn","Sign in"); card.appendChild(btn);
-  const hint=el("div","muted center"); hint.style.cssText="font-size:12px;margin-top:12px;line-height:1.5"; card.appendChild(hint);
-  function setMode(m){ mode=m;
-    t1.className="tab"+(m==="signin"?" on":""); t2.className="tab"+(m==="signup"?" on":"");
-    btn.textContent = m==="signin"?"Sign in":"Create account";
-    pw.autocomplete = m==="signin"?"current-password":"new-password";
-    hint.innerHTML = m==="signup" ? "New here? Pick any password — you'll use it to log back in." : "";
-  }
-  t1.onclick=()=>setMode("signin"); t2.onclick=()=>setMode("signup");
-  btn.onclick=async()=>{
-    const e=email.value.trim(), p=pw.value;
-    if(!e||!p){ toast("Enter your email and a password"); return; }
-    if(mode==="signup" && p.length<6){ toast("Password must be at least 6 characters"); return; }
+  const setM=m=>{ mode=m; t1.className=m==="signin"?"on":""; t2.className=m==="signup"?"on":""; btn.textContent=m==="signin"?"Sign in":"Create account"; pw.autocomplete=m==="signin"?"current-password":"new-password"; };
+  t1.onclick=()=>setM("signin"); t2.onclick=()=>setM("signup");
+  btn.onclick=async()=>{ const e=email.value.trim(),p=pw.value; if(!e||!p){ toast("Enter email and password"); return; } if(mode==="signup"&&p.length<6){ toast("Password needs 6+ characters"); return; }
     btn.disabled=true; btn.textContent="…";
-    const res = mode==="signin"
-      ? await sb.auth.signInWithPassword({ email:e, password:p })
-      : await sb.auth.signUp({ email:e, password:p });
-    btn.disabled=false; setMode(mode);
-    if(res.error){
-      let msg=res.error.message;
-      if(/invalid login/i.test(msg)) msg="Wrong email or password. New here? Tap “Create account”.";
-      if(/already registered/i.test(msg)) msg="That email already has an account — tap “Sign in”.";
-      toast(msg); return;
-    }
-    if(mode==="signup" && res.data && res.data.user && !res.data.session){
-      // email confirmation is still ON in Supabase
-      card.innerHTML=`<div class="center" style="padding:8px 4px"><div style="font-size:34px">📬</div>
-        <h3 style="margin:10px 0 6px">Confirm your email</h3>
-        <p class="muted" style="line-height:1.5">Check your inbox to confirm, then sign in. (Tip for the admin: turn off “Confirm email” in Supabase to skip this.)</p></div>`;
-      return;
-    }
-    // success → onAuthStateChange loads the profile and renders
+    const res=mode==="signin"?await sb.auth.signInWithPassword({email:e,password:p}):await sb.auth.signUp({email:e,password:p});
+    btn.disabled=false; setM(mode);
+    if(res.error){ let m=res.error.message; if(/invalid login/i.test(m))m="Wrong email or password. New here? Tap “Create account”."; if(/already/i.test(m))m="That email already has an account — tap “Sign in”."; toast(m); return; }
+    if(mode==="signup"&&res.data&&res.data.user&&!res.data.session){ card.innerHTML=`<div class="center" style="padding:10px 4px"><div style="font-size:34px">📬</div><h3 style="margin:10px 0 6px">Confirm your email</h3><p class="muted" style="line-height:1.5">Check your inbox, then sign in.</p></div>`; }
   };
   s.appendChild(card); app().appendChild(s);
 }
+function openSetPassword(){ openSheet(sh=>{ sh.appendChild(el("h3",null,"Set / change password")); sh.appendChild(el("div","ssub","At least 6 characters. You'll use it to sign back in.")); const fp=el("div","field"); fp.innerHTML=`<label>New password</label>`; const pw=el("input"); pw.type="password"; pw.placeholder="••••••"; fp.appendChild(pw); sh.appendChild(fp); sheetActions(sh,"Save",async()=>{ if(pw.value.length<6){ toast("6+ characters"); return; } const { error }=await sb.auth.updateUser({ password:pw.value }); if(error){ toast(error.message); return; } closeSheet(); toast("Password set ✓"); }); }); }
 
-/* ===================================================================
-   SHELL
-   =================================================================== */
-function topbar(){
-  const t=el("div","topbar");
-  t.innerHTML = `<div class="logo">Hineni<small>School</small></div><div class="sp"></div>
-    <span class="badge">${esc(me_.role)}</span>`;
-  const key=el("button","icon-btn"); key.title="Set password"; key.style.marginLeft="6px";
-  key.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="m10 13 8-8"/><path d="m15 5 3 3"/><path d="m18 8 2-2"/></svg>`;
-  key.onclick=openSetPassword;
-  const out=el("button","icon-btn"); out.title="Sign out"; out.style.marginLeft="6px";
-  out.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>`;
-  out.onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
-  t.append(key, out);
-  return t;
+/* ===== shell ===== */
+function navItems(){
+  if(me_.role==="admin") return [["classes","Classes","classes"],["students","Students","students"],["people","People","people"],["appeals","Appeals","appeals"],["schools","Schools","schools"]];
+  if(me_.role==="principal") return [["classes","Classes","classes"],["students","Students","students"],["people","People","people"],["appeals","Appeals","appeals"]];
+  if(me_.role==="teacher") return [["classes","Classes","classes"],["appeals","Appeals","appeals"]];
+  return [];
 }
-function openSetPassword(){
-  openSheet(sh=>{
-    sh.appendChild(el("h3",null,"Set / change password"));
-    sh.appendChild(el("div","sheet-sub","Set a password for your account so you can sign back in. At least 6 characters."));
-    const fp=el("div","field"); fp.innerHTML=`<label>New password</label>`; const pw=el("input"); pw.type="password"; pw.autocomplete="new-password"; pw.placeholder="••••••"; fp.appendChild(pw); sh.appendChild(fp);
-    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
-    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
-    const sv=el("button","btn sm","Save");
-    sv.onclick=async()=>{ if(pw.value.length<6){ toast("At least 6 characters"); return; }
-      const { error }=await sb.auth.updateUser({ password:pw.value });
-      if(error){ toast(error.message); return; } closeSheet(); toast("Password set ✓"); };
-    A.append(sp,cn,sv); sh.appendChild(A);
-  });
-}
-function tabsBar(items){
-  const bar=el("div","tabs");
-  items.forEach(([k,label])=>{ const b=el("button","tab"+(view.tab===k?" on":""),label); b.onclick=()=>{ view.tab=k; view.classId=null; render(); }; bar.appendChild(b); });
-  return bar;
-}
-
-async function render(){
-  if(!configured){ renderConfigNeeded(); return; }
-  if(!me_){ renderLogin(); return; }
-
-  // student has no role tabs — single screen
+function buildShell(){
   app().innerHTML="";
-  app().appendChild(topbar());
-
-  if(me_.role==="student"){ await renderStudentHome(); return; }
-
-  const tabs = me_.role==="principal"
-    ? [["classes","Classes"],["students","Students"],["people","People"],["appeals","Appeals"]]
-    : [["classes","My Classes"],["appeals","Appeals"]];
-  if(!view.tab) view.tab="classes";
-  app().appendChild(tabsBar(tabs));
-
-  const wrap=el("div","wrap"); app().appendChild(wrap);
-  if(view.classId){ await renderClassDetail(wrap); return; }
-  if(view.tab==="classes")  await renderClasses(wrap);
-  else if(view.tab==="students") await renderStudents(wrap);
-  else if(view.tab==="people")   await renderPeople(wrap);
-  else if(view.tab==="appeals")  await renderAppeals(wrap);
-}
-
-/* ===================================================================
-   CLASSES
-   =================================================================== */
-async function renderClasses(wrap){
-  const add=el("button","btn","＋ New class"); add.onclick=openClassForm; wrap.appendChild(add);
-  const load=el("button","btn ghost","📋 Load Oholei Torah Shiur Daled schedule"); load.style.marginTop="10px";
-  load.onclick=async()=>{ load.textContent="Loading…"; const r=await loadOholeiSchedule();
-    if(r.skipped) toast("Those classes already exist");
-    else if(r.error) toast(r.error.message);
-    else toast(`Added ${r.added} classes`);
-    render(); };
-  wrap.appendChild(load);
-  const { data:classes, error } = await Q.classes();
-  if(error){ wrap.appendChild(el("div","empty",esc(error.message))); return; }
-  if(!classes.length){ wrap.appendChild(el("div","empty","No classes yet.<br>Create one to start marking.")); return; }
-  wrap.appendChild(el("div","sec","Classes"));
-  for(const c of classes){
-    const { count } = await sb.from("enrollments").select("*",{count:"exact",head:true}).eq("class_id",c.id);
-    const row=el("div","listrow"); row.style.cursor="pointer";
-    row.innerHTML=`<div class="avatar">${esc(c.name[0]||"?")}</div>
-      <div style="flex:1"><div class="nm">${esc(c.name)}</div><div class="sub">${count||0} students</div></div>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9b3c2" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>`;
-    row.onclick=()=>{ view.classId=c.id; view.sub="mark"; render(); };
-    wrap.appendChild(row);
+  const hdr=el("div","hdr");
+  const brand=el("div"); brand.innerHTML=`<div class="brand">Hineni<span class="heb">הנני</span></div><div class="sub">${esc(me_.role==="student"?"My attendance":me_.role)}</div>`;
+  hdr.appendChild(brand);
+  const sp=el("div","sp"); hdr.appendChild(sp);
+  if(me_.role==="admin"){
+    const sel=el("select"); schoolsCache.forEach(s=>{ const o=el("option"); o.value=s.id; o.textContent=s.name; if(s.id===view.school)o.selected=true; sel.appendChild(o); });
+    sel.onchange=()=>{ view.school=sel.value; view.classId=null; refreshPending(); renderContent(); }; hdr.appendChild(sel);
+  }
+  const key=el("button","iconbtn"); key.title="Password"; key.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="m10 13 8-8 3 3"/><path d="m15.5 7.5 2 2"/></svg>`; key.onclick=openSetPassword;
+  const out=el("button","iconbtn"); out.title="Sign out"; out.style.marginInlineStart="8px"; out.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>`; out.onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
+  hdr.append(key,out);
+  app().appendChild(hdr);
+  const main=el("main","content"); main.id="content"; app().appendChild(main);
+  const items=navItems();
+  if(items.length){
+    const nav=el("div","bottomnav"); const inner=el("div","inner");
+    items.forEach(([k,label,icon])=>{ const b=el("button","navbtn"+(view.tab===k?" on":"")); b.dataset.tab=k; b.innerHTML=`${ICON[icon]}<span>${label}</span>`; if(k==="appeals"){ const dot=el("div","dot"); dot.style.display=pendingAppeals>0?"block":"none"; b.appendChild(dot); } b.onclick=()=>go(k); inner.appendChild(b); });
+    nav.appendChild(inner); app().appendChild(nav);
   }
 }
-function openClassForm(){
+function updateNavActive(){ document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("on",b.dataset.tab===view.tab)); }
+function updateNavDot(){ const d=document.querySelector('.navbtn[data-tab=appeals] .dot'); if(d) d.style.display=pendingAppeals>0?"block":"none"; }
+function go(tab){ view.tab=tab; view.classId=null; updateNavActive(); content().scrollTop=0; window.scrollTo(0,0); renderContent(); }
+
+async function renderContent(){
+  const c=content(); c.innerHTML="";
+  if(me_.role==="student"){ await renderReport(c, null, true); return; }
+  if(!view.tab) view.tab="classes";
+  if(view.classId){ await renderClassDetail(c); return; }
+  if(view.tab==="schools") await renderSchools(c);
+  else if(view.tab==="classes") await renderClasses(c);
+  else if(view.tab==="students") await renderStudents(c);
+  else if(view.tab==="people") await renderPeople(c);
+  else if(view.tab==="appeals") await renderAppeals(c);
+}
+
+/* ===== SCHOOLS (admin) ===== */
+async function renderSchools(c){
+  c.appendChild(el("div","h-title","Schools"));
+  c.appendChild(el("div","h-sub","Create schools and assign a principal to each."));
+  const add=el("button","btn","＋ New school"); add.onclick=()=>openSchoolForm(); c.appendChild(add);
+  const schools=await listSchools(); schoolsCache=schools;
+  const { data:people }=await sb.from("profiles").select("*").order("full_name");
+  c.appendChild(el("div","sec","All schools"));
+  schools.forEach(s=>{
+    const princ=(people||[]).filter(p=>p.role==="principal"&&p.school_id===s.id);
+    const row=el("div","listrow");
+    row.innerHTML=`<div class="avatar">${esc(s.name[0]||"?")}</div><div style="flex:1"><div class="nm">${esc(s.name)}</div><div class="sub">${princ.length?("Principal: "+princ.map(p=>esc(p.full_name||p.email)).join(", ")):"no principal yet"}</div></div>`;
+    const b=el("button","btn tiny soft","Principal"); b.onclick=()=>openAssignPrincipal(s,people||[]); row.appendChild(b);
+    c.appendChild(row);
+  });
+}
+function openSchoolForm(){ openSheet(sh=>{ sh.appendChild(el("h3",null,"New school")); const f=el("div","field"); f.innerHTML=`<label>School name</label>`; const nm=el("input"); nm.placeholder="e.g. Oholei Torah"; f.appendChild(nm); sh.appendChild(f); sheetActions(sh,"Create",async()=>{ if(!nm.value.trim()){ toast("Name it"); return; } const { data,error }=await createSchool(nm.value.trim()); if(error){ toast(error.message); return; } view.school=data.id; closeSheet(); toast("School created"); buildShell(); renderContent(); }); }); }
+function openAssignPrincipal(school,people){ openSheet(sh=>{ sh.appendChild(el("h3",null,"Set principal")); sh.appendChild(el("div","ssub",`Choose who runs ${esc(school.name)}. They must have signed in once.`)); const f=el("div","field"); f.innerHTML=`<label>Person</label>`; const sel=el("select"); people.forEach(p=>{ const o=el("option"); o.value=p.id; o.textContent=(p.full_name||p.email||"User")+(p.role!=="student"?` (${p.role})`:""); sel.appendChild(o); }); f.appendChild(sel); sh.appendChild(f); sheetActions(sh,"Make principal",async()=>{ const { error }=await sb.from("profiles").update({ role:"principal", school_id:school.id }).eq("id",sel.value); if(error){ toast(error.message); return; } closeSheet(); toast("Principal assigned"); renderContent(); }); }); }
+
+/* ===== CLASSES ===== */
+async function renderClasses(c){
+  c.appendChild(el("div","h-title","Classes"));
+  c.appendChild(el("div","h-sub","Tap a class to take attendance."));
+  const add=el("button","btn","＋ New class"); add.onclick=()=>openClassForm(); c.appendChild(add);
+  const ld=el("button","btn soft","📋 Load Oholei Torah Shiur Daled schedule"); ld.style.marginTop="10px"; ld.onclick=async()=>{ ld.textContent="Loading…"; const r=await loadOholei(); toast(r.skipped?"Those classes already exist":r.error?r.error.message:`Added ${r.added} classes`); renderContent(); }; c.appendChild(ld);
+  const { data:classes,error }=await Q.classes();
+  if(error){ c.appendChild(el("div","empty",esc(error.message))); return; }
+  if(!classes.length){ c.appendChild(emptyState("📚","No classes yet","Create one, or load the Oholei Torah schedule above.")); return; }
+  c.appendChild(el("div","sec","Your classes"));
+  for(const cl of classes){
+    const { count }=await sb.from("enrollments").select("*",{count:"exact",head:true}).eq("class_id",cl.id);
+    const row=el("div","listrow");
+    row.innerHTML=`<div class="avatar">${esc(cl.name[0]||"?")}</div><div style="flex:1"><div class="nm">${esc(cl.name)}</div><div class="sub">${count||0} students${cl.start_time?" · "+cl.start_time:""}</div></div><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>`;
+    row.onclick=()=>{ view.classId=cl.id; view.sub="mark"; renderContent(); window.scrollTo(0,0); };
+    c.appendChild(row);
+  }
+}
+function openClassForm(existing){
   openSheet(async sh=>{
-    sh.appendChild(el("h3",null,"New class"));
-    const fn=el("div","field"); fn.innerHTML=`<label>Class name</label>`; const nm=el("input"); nm.placeholder="e.g. Nigleh A"; fn.appendChild(nm); sh.appendChild(fn);
-    let teacherSel=null;
-    if(me_.role==="principal"){
-      const { data:people } = await Q.people();
-      const teachers=(people||[]).filter(p=>p.role==="teacher"||p.role==="principal");
-      const ft=el("div","field"); ft.innerHTML=`<label>Teacher</label>`; teacherSel=el("select");
-      teachers.forEach(t=>{ const o=el("option"); o.value=t.id; o.textContent=(t.full_name||t.email||"User")+(t.id===me_.id?" (you)":""); if(t.id===me_.id)o.selected=true; teacherSel.appendChild(o); });
-      ft.appendChild(teacherSel); sh.appendChild(ft);
-    }
-    const apL=el("label"); apL.style.cssText="display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;margin:4px 0 2px;cursor:pointer";
-    const apCb=el("input"); apCb.type="checkbox"; apCb.checked=true; apCb.style.cssText="width:19px;height:19px;accent-color:var(--brand);flex:none";
-    apL.append(apCb, document.createTextNode("Allow students to appeal marks")); sh.appendChild(apL);
-    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
-    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
-    const sv=el("button","btn sm","Create");
-    sv.onclick=async()=>{ if(!nm.value.trim()){ toast("Name it"); return; }
-      const { error }=await createClass(nm.value.trim(), teacherSel?teacherSel.value:me_.id, apCb.checked);
-      if(error){ toast(error.message); return; } closeSheet(); toast("Class created"); render(); };
-    A.append(sp,cn,sv); sh.appendChild(A);
+    sh.appendChild(el("h3",null,existing?"Edit class":"New class"));
+    const fn=el("div","field"); fn.innerHTML=`<label>Class name</label>`; const nm=el("input"); nm.placeholder="e.g. Nigleh A"; nm.value=existing?existing.name:""; fn.appendChild(nm); sh.appendChild(fn);
+    const ft=el("div","field"); ft.innerHTML=`<label>Start time (optional — lets “Late” auto-calculate)</label>`; const st=el("input"); st.type="time"; st.value=existing?(existing.start_time||""):""; ft.appendChild(st); sh.appendChild(ft);
+    let tsel=null;
+    if(me_.role!=="teacher"){ const { data:ppl }=await Q.people(); const ts=(ppl||[]).filter(p=>p.role==="teacher"||p.role==="principal"); const f=el("div","field"); f.innerHTML=`<label>Teacher</label>`; tsel=el("select"); ts.forEach(t=>{ const o=el("option"); o.value=t.id; o.textContent=(t.full_name||t.email||"User")+(t.id===me_.id?" (you)":""); if(existing?existing.teacher_id===t.id:t.id===me_.id)o.selected=true; tsel.appendChild(o); }); f.appendChild(tsel); sh.appendChild(f); }
+    const apL=el("label","toggle"); const ap=el("input"); ap.type="checkbox"; ap.checked=existing?existing.appeals_allowed!==false:true; apL.append(ap,document.createTextNode("Allow students to appeal marks")); sh.appendChild(apL);
+    sheetActions(sh, existing?"Save":"Create", async()=>{
+      if(!nm.value.trim()){ toast("Name it"); return; }
+      if(existing){ const { error }=await updateClass(existing.id,{ name:nm.value.trim(), start_time:st.value||null, appeals_allowed:ap.checked, ...(tsel?{teacher_id:tsel.value}:{}) }); if(error){ toast(error.message); return; } }
+      else { const { error }=await createClass(nm.value.trim(), tsel?tsel.value:me_.id, ap.checked, st.value); if(error){ toast(error.message); return; } }
+      closeSheet(); toast("Saved"); renderContent();
+    }, existing?{label:"Delete",fn:async()=>{ if(confirm("Delete this class and its marks?")){ await deleteClass(existing.id); closeSheet(); view.classId=null; toast("Class deleted"); renderContent(); } }}:null);
   });
 }
 
-/* ===================================================================
-   CLASS DETAIL — Mark grid + Roster
-   =================================================================== */
-async function renderClassDetail(wrap){
-  const { data:cls } = await sb.from("classes").select("*").eq("id",view.classId).single();
-  const back=el("button","btn ghost sm","‹ Back"); back.style.marginBottom="12px"; back.onclick=()=>{ view.classId=null; render(); }; wrap.appendChild(back);
-  const head=el("div"); head.innerHTML=`<h2 style="color:var(--brand-dark)">${esc(cls.name)}</h2>`; wrap.appendChild(head);
-  const sub=el("div","tabs"); sub.style.padding="12px 0 4px";
-  [["mark","Mark"],["roster","Roster"]].forEach(([k,l])=>{ const b=el("button","tab"+(view.sub===k?" on":""),l); b.onclick=()=>{ view.sub=k; render(); }; sub.appendChild(b); });
-  wrap.appendChild(sub);
-  if(view.sub==="mark") await renderMarkGrid(wrap, cls);
-  else await renderRoster(wrap, cls);
+/* ===== CLASS DETAIL ===== */
+async function renderClassDetail(c){
+  const { data:cls }=await sb.from("classes").select("*").eq("id",view.classId).single();
+  if(!cls){ view.classId=null; return renderContent(); }
+  const top=el("div"); top.style.cssText="display:flex;align-items:center;gap:10px;margin-bottom:6px";
+  const back=el("button","iconbtn"); back.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>`; back.onclick=()=>{ view.classId=null; renderContent(); };
+  const ttl=el("div"); ttl.style.flex="1"; ttl.innerHTML=`<div class="h-title" style="font-size:21px;margin:0">${esc(cls.name)}</div>`;
+  const edit=el("button","iconbtn"); edit.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`; edit.onclick=()=>openClassForm(cls);
+  top.append(back,ttl,edit); c.appendChild(top);
+  const seg=el("div","tabseg"); const m=el("button",view.sub==="mark"?"on":"","Mark"); const r=el("button",view.sub==="roster"?"on":"","Roster"); m.onclick=()=>{ view.sub="mark"; renderContent(); }; r.onclick=()=>{ view.sub="roster"; renderContent(); }; seg.append(m,r); c.appendChild(seg);
+  if(view.sub==="mark") await renderMark(c,cls); else await renderRoster(c,cls);
 }
 
-async function renderMarkGrid(wrap, cls){
-  // date picker
-  const df=el("div","field"); df.style.margin="14px 0 4px"; df.innerHTML=`<label>Date</label>`;
-  const di=el("input"); di.type="date"; di.value=view.date; di.onchange=()=>{ view.date=di.value; render(); }; df.appendChild(di); wrap.appendChild(df);
+const cellState={}; // student_id -> {status, minutes, left}
+async function renderMark(c,cls){
+  const head=el("div","markhead");
+  const dp=el("div","datepick"); dp.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>`; const di=el("input"); di.type="date"; di.value=view.date; di.onchange=()=>{ view.date=di.value; renderContent(); }; dp.appendChild(di); head.appendChild(dp);
+  c.appendChild(head);
+  const apL=el("label","toggle"); const ap=el("input"); ap.type="checkbox"; ap.checked=cls.appeals_allowed!==false; ap.onchange=async()=>{ const { error }=await setClassAppeals(cls.id,ap.checked); if(error){ toast(error.message); ap.checked=!ap.checked; return; } cls.appeals_allowed=ap.checked; toast(ap.checked?"Appeals on":"Appeals off for this class"); }; apL.append(ap,document.createTextNode("Allow students to appeal in this class")); c.appendChild(apL);
 
-  // appeals toggle for this class
-  const apRow=el("label"); apRow.style.cssText="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:8px 0 4px;font-weight:600;font-size:13.5px;cursor:pointer";
-  const apCb=el("input"); apCb.type="checkbox"; apCb.checked=cls.appeals_allowed!==false; apCb.style.cssText="width:19px;height:19px;accent-color:var(--brand);flex:none";
-  apCb.onchange=async()=>{ const { error }=await setClassAppeals(cls.id, apCb.checked); if(error){ toast(error.message); apCb.checked=!apCb.checked; return; } cls.appeals_allowed=apCb.checked; toast(apCb.checked?"Students can appeal in this class":"Appeals turned off for this class"); };
-  apRow.append(apCb, document.createTextNode("Allow students to appeal marks in this class"));
-  wrap.appendChild(apRow);
+  const { data:enr }=await Q.enroll(cls.id);
+  if(!enr||!enr.length){ c.appendChild(emptyState("🪑","No students yet","Open the Roster tab to add or bulk-paste students.")); return; }
+  const { data:marks }=await Q.marks(cls.id,view.date);
+  for(const k in cellState) delete cellState[k];
+  (marks||[]).forEach(mk=>cellState[mk.student_id]={ status:mk.status, minutes:mk.minutes_late, left:mk.left_early });
 
-  const { data:enr } = await Q.enrollments(cls.id);
-  if(!enr || !enr.length){ wrap.appendChild(el("div","empty","No students in this class yet.<br>Go to <b>Roster</b> to add them.")); return; }
-  const { data:marks } = await Q.marksFor(cls.id, view.date);
-  const markMap={}; (marks||[]).forEach(m=>markMap[m.student_id]=m);
-
-  // brush
-  if(!view.brush) view.brush="ontime";
+  if(!SKEYS.includes(view.brush)) view.brush="ontime";
   const brush=el("div","brush");
-  STATUS_KEYS.forEach(k=>{ const b=el("button","b-"+k+(view.brush===k?" on":""),STATUS[k].label); b.onclick=()=>{ view.brush=k; render(); }; brush.appendChild(b); });
-  wrap.appendChild(brush);
+  SKEYS.forEach(k=>{ const b=el("button",view.brush===k?"on":""); b.dataset.k=k; b.textContent=STATUS[k].label; b.onclick=()=>{ view.brush=k; brush.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.k===k)); }; brush.appendChild(b); });
+  c.appendChild(brush);
 
-  const allBtn=el("button","btn ghost sm","✓ Mark everyone on time"); allBtn.style.marginBottom="12px";
-  allBtn.onclick=async()=>{ for(const e of enr){ if(!markMap[e.student_id]) await setMark(cls.id,e.student_id,view.date,"ontime",0,false); } buzz(); toast("Marked present"); render(); };
-  const seatBtn=el("button","btn ghost sm","⊞ Seat layout (A→Z)"); seatBtn.style.cssText="margin-bottom:12px;margin-left:8px";
-  seatBtn.onclick=async()=>{ seatBtn.textContent="Arranging…"; await arrangeAlphabetical(cls.id); buzz(); toast("Seats arranged A→Z"); render(); };
-  const btnRow=el("div"); btnRow.style.cssText="display:flex;flex-wrap:wrap"; btnRow.append(allBtn,seatBtn); wrap.appendChild(btnRow);
+  const tools=el("div"); tools.style.cssText="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px";
+  const allBtn=el("button","btn ghost tiny","✓ Everyone on time"); allBtn.onclick=()=>{ const gi=$("#grid"); enr.forEach(e=>{ if(!cellState[e.student_id]){ cellState[e.student_id]={status:"ontime",minutes:0,left:false}; const cell=gi.querySelector(`[data-sid="${e.student_id}"]`); if(cell) paintSeat(cell,"ontime",0); setMark(cls.id,e.student_id,view.date,"ontime",0,false); } }); buzz(); toast("Marked present"); };
+  const azBtn=el("button","btn ghost tiny","⊞ Seat order A→Z"); azBtn.onclick=async()=>{ azBtn.textContent="…"; await arrangeAZ(cls.id); buzz(); renderContent(); };
+  tools.append(allBtn,azBtn); c.appendChild(tools);
 
-  const grid=el("div","grid");
-  enr.forEach(e=>{
-    const st=e.students; const m=markMap[st.id];
-    const cell=el("div","seat"+(m?" "+m.status:""));
-    const face=el("div","face"); fillFace(face, st.photo_path, st.full_name);
+  const grid=el("div","grid"); grid.id="grid"; renderSeats(grid,enr,cls); c.appendChild(grid);
+  c.appendChild(el("div","muted center",`<div style="font-size:12px;margin-top:14px;line-height:1.5">Pick a status, then tap faces to mark.<br>Tap ⋯ for minutes-late, “left early”, or to clear.</div>`));
+}
+function paintSeat(cell,status,mins){
+  cell.classList.remove("ontime","late","absent","excused");
+  const ss=cell.querySelector(".ss");
+  if(status){ cell.classList.add(status); ss.style.color=STATUS[status].c; ss.textContent=STATUS[status].label+(status==="late"&&mins?` ${mins}m`:""); }
+  else { ss.style.color="var(--faint)"; ss.textContent="tap"; }
+}
+function renderSeats(grid,enr,cls){
+  grid.innerHTML="";
+  enr.forEach(e=>{ const st=e.students; const cur=cellState[st.id];
+    const cell=el("div","seat"); cell.dataset.sid=st.id;
+    const more=el("button","more","⋯"); more.onclick=ev=>{ ev.stopPropagation(); openMarkDetail(cls,st); };
+    const face=el("div","face"); fillFace(face,st.photo_path,st.full_name);
     const nm=el("div","snm",esc(st.full_name||"—"));
-    const ss=el("div","ss"); ss.style.color=m?STATUS[m.status].color:"transparent"; ss.textContent=m?(STATUS[m.status].label+(m.minutes_late?` ${m.minutes_late}m`:"")):"·";
-    const dots=el("button","dots","⋯"); dots.onclick=(ev)=>{ ev.stopPropagation(); openMarkDetail(cls,st,m); };
-    cell.append(dots,face,nm,ss);
-    cell.onclick=async()=>{ await setMark(cls.id,st.id,view.date,view.brush,0,false); buzz(); render(); };
+    const ss=el("div","ss");
+    cell.append(more,face,nm,ss);
+    paintSeat(cell, cur?cur.status:null, cur?cur.minutes:0);
+    cell.onclick=()=>{ const k=view.brush; const mins=k==="late"?minsLateNow(cls):0; cellState[st.id]={status:k,minutes:mins,left:cur?cur.left:false}; paintSeat(cell,k,mins); buzz(); setMark(cls.id,st.id,view.date,k,mins,(cellState[st.id].left)).then(({error})=>{ if(error) toast(error.message); }); };
     grid.appendChild(cell);
   });
-  wrap.appendChild(grid);
-  const tip=el("div","muted center"); tip.style.cssText="font-size:12px;margin-top:14px;line-height:1.5";
-  tip.innerHTML=`Pick a status above, then tap faces to mark them.<br>Tap ⋯ on a student for minutes-late or “left early”.`;
-  wrap.appendChild(tip);
 }
-function openMarkDetail(cls, st, m){
+function openMarkDetail(cls,st){
+  const cur=cellState[st.id]||{status:"ontime",minutes:0,left:false};
   openSheet(sh=>{
     sh.appendChild(el("h3",null,esc(st.full_name||"Student")));
-    let status=(m&&m.status)||"ontime", mins=(m&&m.minutes_late)||0, left=(m&&m.left_early)||false;
+    sh.appendChild(el("div","ssub",fmtDate(view.date)+(cls.start_time?` · class at ${cls.start_time}`:"")));
+    let status=cur.status||"ontime", mins=cur.minutes||0, left=!!cur.left;
     const set=el("div","statusset");
-    const minField=el("div","field"); minField.style.display=(status==="late")?"block":"none";
-    minField.innerHTML=`<label>Minutes late</label>`; const minInp=el("input"); minInp.type="number"; minInp.min=0; minInp.value=mins; minField.appendChild(minInp);
-    STATUS_KEYS.forEach(k=>{ const b=el("button",(status===k?"on":""),STATUS[k].label); if(status===k)b.style.background=STATUS[k].color,b.style.borderColor=STATUS[k].color;
-      b.onclick=()=>{ status=k; [...set.children].forEach(c=>{c.className="";c.style.background="";c.style.borderColor="";}); b.className="on"; b.style.background=STATUS[k].color; b.style.borderColor=STATUS[k].color; minField.style.display=(k==="late")?"block":"none"; };
+    const stepWrap=el("div"); stepWrap.style.cssText="margin-top:12px"+(status==="late"?"":";display:none");
+    stepWrap.innerHTML=`<label style="display:block;font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Minutes late</label>`;
+    const step=el("div","stepper"); const minus=el("button",null,"−"); const v=el("div","v"); v.textContent=mins; const plus=el("button",null,"+"); const u=el("div","u","min"); step.append(minus,v,plus,u); stepWrap.appendChild(step);
+    minus.onclick=()=>{ mins=Math.max(0,mins-1); v.textContent=mins; }; plus.onclick=()=>{ mins+=1; v.textContent=mins; };
+    SKEYS.forEach(k=>{ const b=el("button",status===k?"on":"",`<span class="d" style="background:${STATUS[k].c}"></span>${STATUS[k].label}`); if(status===k)b.style.background=STATUS[k].c,b.style.borderColor=STATUS[k].c;
+      b.onclick=()=>{ status=k; set.querySelectorAll("button").forEach(x=>{ x.classList.remove("on"); x.style.background=""; x.style.borderColor=""; }); b.classList.add("on"); b.style.background=STATUS[k].c; b.style.borderColor=STATUS[k].c; if(k==="late"){ stepWrap.style.display="block"; if(!mins){ mins=minsLateNow(cls); v.textContent=mins; } } else stepWrap.style.display="none"; };
       set.appendChild(b); });
     sh.appendChild(el("div","field",`<label>Status</label>`)).appendChild(set);
-    sh.appendChild(minField);
-    const lf=el("label"); lf.style.cssText="display:flex;align-items:center;gap:10px;margin:6px 0;font-weight:600";
-    const cb=el("input"); cb.type="checkbox"; cb.checked=left; cb.style.cssText="width:18px;height:18px;accent-color:var(--brand)";
-    lf.append(cb, document.createTextNode("Left early")); sh.appendChild(lf);
-    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
-    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
-    const sv=el("button","btn sm","Save");
-    sv.onclick=async()=>{ await setMark(cls.id,st.id,view.date,status,parseInt(minInp.value)||0,cb.checked); buzz(); closeSheet(); render(); };
-    A.append(sp,cn,sv); sh.appendChild(A);
+    sh.appendChild(stepWrap);
+    const lf=el("label","toggle"); lf.style.marginTop="12px"; const cb=el("input"); cb.type="checkbox"; cb.checked=left; lf.append(cb,document.createTextNode("Left early")); sh.appendChild(lf);
+    sheetActions(sh,"Save",async()=>{ left=cb.checked; cellState[st.id]={status,minutes:mins,left}; const cell=$("#grid")?.querySelector(`[data-sid="${st.id}"]`); if(cell) paintSeat(cell,status,mins); closeSheet(); buzz(); const { error }=await setMark(cls.id,st.id,view.date,status,mins,left); if(error) toast(error.message); },
+      { label:"Clear mark", fn:async()=>{ delete cellState[st.id]; const cell=$("#grid")?.querySelector(`[data-sid="${st.id}"]`); if(cell) paintSeat(cell,null,0); closeSheet(); await clearMark(cls.id,st.id,view.date); toast("Mark cleared"); } });
   });
 }
 
-async function renderRoster(wrap, cls){
-  const addNew=el("button","btn","＋ Add a new student"); addNew.style.marginTop="14px";
-  addNew.onclick=()=>openStudentForm(cls); wrap.appendChild(addNew);
-  const bulk=el("button","btn ghost","📋 Bulk add a list of names"); bulk.style.marginTop="10px";
-  bulk.onclick=()=>openBulkAdd(cls); wrap.appendChild(bulk);
-
-  const { data:enr } = await Q.enrollments(cls.id);
-  const enrolledIds=new Set((enr||[]).map(e=>e.student_id));
-
-  wrap.appendChild(el("div","sec","In this class ("+(enr?enr.length:0)+")"));
-  if(enr && enr.length){
-    enr.forEach((e,i)=>{ const st=e.students; const row=el("div","listrow");
-      const av=el("div","avatar"); fillFace(av, st.photo_path, st.full_name);
-      const body=el("div"); body.style.flex="1"; body.innerHTML=`<div class="nm">${esc(st.full_name||"(no name yet)")}</div><div class="sub">${st.photo_path?"has photo":"no photo"}</div>`;
-      const cam=el("button","btn ghost sm","📷"); cam.onclick=()=>pickFace(st);
-      const rm=el("button","btn ghost sm","Remove"); rm.onclick=async()=>{ await unenroll(cls.id,st.id); render(); };
-      row.append(av,body,cam,rm); wrap.appendChild(row);
-    });
-  } else wrap.appendChild(el("div","muted center","Nobody enrolled yet."));
-
-  // add from school roster
-  const { data:students } = await Q.students();
-  const avail=(students||[]).filter(s=>!enrolledIds.has(s.id));
-  if(avail.length){
-    wrap.appendChild(el("div","sec","Add from school roster"));
-    avail.forEach(st=>{ const row=el("div","listrow");
-      const av=el("div","avatar"); fillFace(av, st.photo_path, st.full_name);
-      const body=el("div"); body.style.flex="1"; body.innerHTML=`<div class="nm">${esc(st.full_name||"(no name)")}</div>`;
-      const add=el("button","btn sm","Add"); add.onclick=async()=>{ await enroll(cls.id,st.id,(enr?enr.length:0)); toast("Added"); render(); };
-      row.append(av,body,add); wrap.appendChild(row);
-    });
-  }
-}
-function openStudentForm(cls){
-  openSheet(sh=>{
-    sh.appendChild(el("h3",null,"New student"));
-    sh.appendChild(el("div","muted",`<div style="margin:-6px 0 12px;font-size:13px;line-height:1.45">You can leave the name blank for now and just add a photo — fill in names later.</div>`));
-    const fn=el("div","field"); fn.innerHTML=`<label>Name (optional)</label>`; const nm=el("input"); nm.placeholder="e.g. Levi Cohen"; fn.appendChild(nm); sh.appendChild(fn);
-    const fe=el("div","field"); fe.innerHTML=`<label>Their email (optional — lets them log in to see &amp; appeal)</label>`; const em=el("input"); em.type="email"; em.placeholder="student@example.com"; fe.appendChild(em); sh.appendChild(fe);
-    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
-    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
-    const sv=el("button","btn sm","Add to class");
-    sv.onclick=async()=>{ try{ const st=await createStudent(nm.value.trim(), em.value.trim());
-      await enroll(cls.id, st.id, 999); closeSheet(); toast("Student added"); render();
-    }catch(e){ toast(e.message); } };
-    A.append(sp,cn,sv); sh.appendChild(A);
+/* ===== ROSTER ===== */
+async function renderRoster(c,cls){
+  const add=el("button","btn","＋ Add a student"); add.onclick=()=>openStudentForm(cls); c.appendChild(add);
+  const bulk=el("button","btn soft","📋 Bulk add a list of names"); bulk.style.marginTop="10px"; bulk.onclick=()=>openBulk(cls); c.appendChild(bulk);
+  const { data:enr }=await Q.enroll(cls.id);
+  const ids=new Set((enr||[]).map(e=>e.student_id));
+  c.appendChild(el("div","sec","In this class ("+(enr?enr.length:0)+")"));
+  (enr||[]).forEach(e=>{ const st=e.students; const row=el("div","listrow"); const av=el("div","avatar"); fillFace(av,st.photo_path,st.full_name);
+    const body=el("div"); body.style.flex="1"; body.innerHTML=`<div class="nm">${esc(st.full_name||"(no name)")}</div><div class="sub">${st.photo_path?"has photo":"no photo"}${st.profile_id?" · login linked":""}</div>`;
+    const cam=el("button","iconbtn"); cam.innerHTML="📷"; cam.onclick=()=>pickFace(st);
+    const rm=el("button","iconbtn"); rm.style.marginInlineStart="6px"; rm.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>`; rm.onclick=async()=>{ await unenroll(cls.id,st.id); renderContent(); };
+    row.append(av,body,cam,rm); c.appendChild(row);
   });
+  if(!enr||!enr.length) c.appendChild(el("div","muted center","Nobody enrolled yet."));
+  const { data:students }=await Q.students(); const avail=(students||[]).filter(s=>!ids.has(s.id));
+  if(avail.length){ c.appendChild(el("div","sec","Add from school roster")); avail.forEach(st=>{ const row=el("div","listrow"); const av=el("div","avatar"); fillFace(av,st.photo_path,st.full_name); const body=el("div"); body.style.flex="1"; body.innerHTML=`<div class="nm">${esc(st.full_name||"(no name)")}</div>`; const b=el("button","btn tiny soft","Add"); b.onclick=async()=>{ await enroll(cls.id,st.id,(enr?enr.length:0)); toast("Added"); renderContent(); }; row.append(av,body,b); c.appendChild(row); }); }
 }
-function openBulkAdd(cls){
-  openSheet(async sh=>{
-    sh.appendChild(el("h3",null,"Bulk add students"));
-    sh.appendChild(el("div","sheet-sub",`Paste one student per line. To add their login email too, put it after a comma:<br><span style="font-family:monospace;font-size:12px">Levi Cohen<br>Mendel Katz, mendel@example.com</span>`));
-    const ta=el("textarea"); ta.rows=8; ta.placeholder="Levi Cohen\nMendel Katz\nShua Berkowitz, shua@example.com"; ta.style.cssText="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;line-height:1.5;resize:vertical"; sh.appendChild(ta);
-    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
-    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
-    const sv=el("button","btn sm","Add all");
-    sv.onclick=async()=>{
-      if(!ta.value.trim()){ toast("Paste some names"); return; }
-      sv.textContent="Adding…"; sv.disabled=true;
-      try{
-        const { data:cur } = await Q.enrollments(cls.id);
-        const startOrder = cur ? cur.length : 0;
-        const r = await bulkAddStudents(cls.id, ta.value, startOrder);
-        closeSheet(); toast(`Added ${r.count} students`); render();
-      }catch(e){ sv.disabled=false; sv.textContent="Add all"; toast(e.message); }
-    };
-    A.append(sp,cn,sv); sh.appendChild(A);
-  });
+function openStudentForm(cls){ openSheet(sh=>{ sh.appendChild(el("h3",null,"New student")); sh.appendChild(el("div","ssub","Name is optional — add a photo now, fill names in later.")); const fn=el("div","field"); fn.innerHTML=`<label>Name (optional)</label>`; const nm=el("input"); fn.appendChild(nm); sh.appendChild(fn); const fe=el("div","field"); fe.innerHTML=`<label>Their email (optional — lets them log in to see &amp; appeal)</label>`; const em=el("input"); em.type="email"; fe.appendChild(em); sh.appendChild(fe); sheetActions(sh,"Add to class",async()=>{ try{ const st=await createStudent(nm.value.trim(),em.value.trim()); await enroll(cls.id,st.id,999); closeSheet(); toast("Student added"); renderContent(); }catch(e){ toast(e.message); } }); }); }
+function openBulk(cls){ openSheet(sh=>{ sh.appendChild(el("h3",null,"Bulk add students")); sh.appendChild(el("div","ssub","One per line. Add a login email after a comma if you want.")); const ta=el("textarea"); ta.rows=8; ta.placeholder="Levi Cohen\nMendel Katz\nShua Berkowitz, shua@example.com"; ta.style.cssText="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:13px;line-height:1.5;resize:vertical;background:var(--surface2)"; sh.appendChild(ta); const sv=sheetActions(sh,"Add all",async()=>{ if(!ta.value.trim()){ toast("Paste some names"); return; } sv.textContent="Adding…"; sv.disabled=true; try{ const { data:cur }=await Q.enroll(cls.id); const r=await bulkAdd(cls.id,ta.value,cur?cur.length:0); closeSheet(); toast(`Added ${r.count} students`); renderContent(); }catch(e){ sv.disabled=false; sv.textContent="Add all"; toast(e.message); } }); }); }
+function pickFace(st){ const inp=el("input"); inp.type="file"; inp.accept="image/*"; inp.capture="environment"; inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return; toast("Uploading…"); try{ await uploadFace(st,f); faceCache.delete(`${st.school_id}/${st.id}.jpg`); toast("Photo saved"); renderContent(); }catch(e){ toast(e.message); } }; inp.click(); }
+
+/* ===== STUDENTS (standalone) ===== */
+async function renderStudents(c){
+  c.appendChild(el("div","h-title","Students"));
+  c.appendChild(el("div","h-sub","Everyone on the roster. Tap 📷 to add a face."));
+  const add=el("button","btn","＋ New student"); add.onclick=()=>openStudentStandalone(); c.appendChild(add);
+  const { data:students,error }=await Q.students();
+  if(error){ c.appendChild(el("div","empty",esc(error.message))); return; }
+  if(!students.length){ c.appendChild(emptyState("🧑‍🎓","No students yet","Add them here, or inside a class roster.")); return; }
+  c.appendChild(el("div","sec","Roster ("+students.length+")"));
+  students.forEach(st=>{ const row=el("div","listrow"); const av=el("div","avatar"); fillFace(av,st.photo_path,st.full_name); const body=el("div"); body.style.flex="1"; body.innerHTML=`<div class="nm">${esc(st.full_name||"(no name)")}</div><div class="sub">${st.profile_id?"login linked":(st.email?"links on signup":"no login")}</div>`; const cam=el("button","iconbtn"); cam.innerHTML="📷"; cam.onclick=()=>pickFace(st); row.append(av,body,cam); c.appendChild(row); });
 }
-function pickFace(st){
-  const inp=el("input"); inp.type="file"; inp.accept="image/*"; inp.capture="environment";
-  inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return; toast("Uploading photo…");
-    try{ await uploadFace(st, f); toast("Photo saved"); render(); }catch(e){ toast(e.message); } };
-  inp.click();
+function openStudentStandalone(){ openSheet(sh=>{ sh.appendChild(el("h3",null,"New student")); const fn=el("div","field"); fn.innerHTML=`<label>Name (optional)</label>`; const nm=el("input"); fn.appendChild(nm); sh.appendChild(fn); const fe=el("div","field"); fe.innerHTML=`<label>Email (optional)</label>`; const em=el("input"); em.type="email"; fe.appendChild(em); sh.appendChild(fe); sheetActions(sh,"Create",async()=>{ try{ await createStudent(nm.value.trim(),em.value.trim()); closeSheet(); toast("Created"); renderContent(); }catch(e){ toast(e.message); } }); }); }
+
+/* ===== PEOPLE ===== */
+async function renderPeople(c){
+  c.appendChild(el("div","h-title","People"));
+  c.appendChild(el("div","h-sub","Set who's a teacher or principal. Everyone else is a student."));
+  const { data:people,error }=await Q.people();
+  if(error){ c.appendChild(el("div","empty",esc(error.message))); return; }
+  c.appendChild(el("div","sec","People ("+people.length+")"));
+  people.forEach(p=>{ const row=el("div","listrow"); const av=el("div","avatar"); av.textContent=initials(p.full_name||p.email); const body=el("div"); body.style.flex="1"; body.innerHTML=`<div class="nm">${esc(p.full_name||p.email||"User")}${p.id===me_.id?' <span class="muted" style="font-weight:600">(you)</span>':''}</div><div class="sub">${esc(p.email||"")}</div>`; const sel=el("select"); sel.style.cssText="padding:9px 10px;border:1.5px solid var(--line);border-radius:11px;font-weight:700;font-size:13px;background:var(--surface2)"; const roles=me_.role==="admin"?["student","teacher","principal","admin"]:["student","teacher","principal"]; roles.forEach(r=>{ const o=el("option"); o.value=r; o.textContent=r; if(p.role===r)o.selected=true; sel.appendChild(o); }); sel.onchange=async()=>{ const { error }=await setRole(p.id,sel.value); if(error){ toast(error.message); sel.value=p.role; } else { p.role=sel.value; toast("Role updated"); } }; row.append(av,body,sel); c.appendChild(row); });
 }
 
-/* ===================================================================
-   STUDENTS (principal) — roster + photos
-   =================================================================== */
-async function renderStudents(wrap){
-  const add=el("button","btn","＋ New student"); add.onclick=()=>openStudentFormStandalone(); wrap.appendChild(add);
-  const { data:students, error } = await Q.students();
-  if(error){ wrap.appendChild(el("div","empty",esc(error.message))); return; }
-  if(!students.length){ wrap.appendChild(el("div","empty","No students yet.")); return; }
-  wrap.appendChild(el("div","sec","Students ("+students.length+")"));
-  students.forEach(st=>{ const row=el("div","listrow");
-    const av=el("div","avatar"); fillFace(av, st.photo_path, st.full_name);
-    const body=el("div"); body.style.flex="1";
-    body.innerHTML=`<div class="nm">${esc(st.full_name||"(no name)")}</div><div class="sub">${st.profile_id?"login linked":(st.email?"will link on signup":"no login")}</div>`;
-    const cam=el("button","btn ghost sm","📷"); cam.onclick=()=>pickFace(st);
-    row.append(av,body,cam); wrap.appendChild(row);
-  });
+/* ===== APPEALS ===== */
+async function renderAppeals(c){
+  c.appendChild(el("div","h-title","Appeals"));
+  c.appendChild(el("div","h-sub","Students disputing a mark show up here."));
+  const appeals=await listAppeals();
+  pendingAppeals=(appeals||[]).filter(a=>a.status==="pending").length; updateNavDot();
+  const pend=(appeals||[]).filter(a=>a.status==="pending"), done=(appeals||[]).filter(a=>a.status!=="pending");
+  if(!appeals.length){ c.appendChild(emptyState("📩","No appeals","When a student disputes a mark, it lands here.")); return; }
+  c.appendChild(el("div","sec","Pending ("+pend.length+")"));
+  if(!pend.length) c.appendChild(el("div","muted center","Nothing to review 🎉"));
+  pend.forEach(a=>c.appendChild(appealCard(a,true)));
+  if(done.length){ c.appendChild(el("div","sec","Resolved")); done.forEach(a=>c.appendChild(appealCard(a,false))); }
 }
-function openStudentFormStandalone(){
-  openSheet(sh=>{
-    sh.appendChild(el("h3",null,"New student"));
-    const fn=el("div","field"); fn.innerHTML=`<label>Name (optional)</label>`; const nm=el("input"); fn.appendChild(nm); sh.appendChild(fn);
-    const fe=el("div","field"); fe.innerHTML=`<label>Email (optional)</label>`; const em=el("input"); em.type="email"; fe.appendChild(em); sh.appendChild(fe);
-    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
-    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
-    const sv=el("button","btn sm","Create");
-    sv.onclick=async()=>{ try{ await createStudent(nm.value.trim(), em.value.trim()); closeSheet(); toast("Student created"); render(); }catch(e){ toast(e.message); } };
-    A.append(sp,cn,sv); sh.appendChild(A);
-  });
-}
-
-/* ===================================================================
-   PEOPLE (principal) — assign roles
-   =================================================================== */
-async function renderPeople(wrap){
-  wrap.appendChild(el("div","card",`<div style="font-size:13px;line-height:1.5" class="muted">Anyone who signs in appears here. Set who is a <b>teacher</b> or <b>principal</b>. Everyone else stays a student.</div>`));
-  const { data:people, error } = await Q.people();
-  if(error){ wrap.appendChild(el("div","empty",esc(error.message))); return; }
-  wrap.appendChild(el("div","sec","People ("+people.length+")"));
-  people.forEach(p=>{ const row=el("div","listrow");
-    const av=el("div","avatar"); av.textContent=initials(p.full_name||p.email);
-    const body=el("div"); body.style.flex="1"; body.innerHTML=`<div class="nm">${esc(p.full_name||p.email||"User")}${p.id===me_.id?' <span class="muted">(you)</span>':''}</div><div class="sub">${esc(p.email||"")}</div>`;
-    const sel=el("select"); sel.style.cssText="padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;font-weight:700;font-size:13px";
-    ["student","teacher","principal"].forEach(r=>{ const o=el("option"); o.value=r; o.textContent=r; if(p.role===r)o.selected=true; sel.appendChild(o); });
-    sel.onchange=async()=>{ const { error }=await setRole(p.id, sel.value); if(error){ toast(error.message); sel.value=p.role; } else { p.role=sel.value; toast("Role updated"); } };
-    row.append(av,body,sel); wrap.appendChild(row);
-  });
-}
-
-/* ===================================================================
-   APPEALS (teacher / principal)
-   =================================================================== */
-async function renderAppeals(wrap){
-  const { data:appeals, error } = await listAppeals();
-  if(error){ wrap.appendChild(el("div","empty",esc(error.message))); return; }
-  const pending=(appeals||[]).filter(a=>a.status==="pending");
-  const done=(appeals||[]).filter(a=>a.status!=="pending");
-  if(!appeals.length){ wrap.appendChild(el("div","empty","No appeals yet.<br>When a student disputes a mark, it shows up here.")); return; }
-  wrap.appendChild(el("div","sec","Pending ("+pending.length+")"));
-  if(!pending.length) wrap.appendChild(el("div","muted center","Nothing to review. 🎉"));
-  pending.forEach(a=>wrap.appendChild(appealCard(a,true)));
-  if(done.length){ wrap.appendChild(el("div","sec","Resolved")); done.forEach(a=>wrap.appendChild(appealCard(a,false))); }
-}
-function appealCard(a, actionable){
-  const m=a.marks||{}; const cls=(m.classes&&m.classes.name)||"Class"; const who=(m.students&&m.students.full_name)||"Student";
+function appealCard(a,actionable){
+  const mk=a.marks||{}; const cls=(mk.classes&&mk.classes.name)||"Class"; const who=(mk.students&&mk.students.full_name)||"Student";
   const card=el("div","card");
-  card.innerHTML=`<div class="row" style="justify-content:space-between">
-      <div><div style="font-weight:800">${esc(who)}</div><div class="sub muted" style="font-size:12.5px">${esc(cls)} · ${m.date?fmtDate(m.date):""}</div></div>
-      <span class="pill p-${a.status}">${a.status}</span></div>
-    <div style="margin:10px 0 4px"><span class="pill" style="background:#f6e9f1;color:var(--brand-dark)">marked: ${m.status?STATUS[m.status].label:"—"}</span></div>
-    <div style="background:#faf2f7;border-radius:12px;padding:11px;font-size:14px;line-height:1.45;margin-top:8px">${esc(a.message||"(no reason given)")}</div>`;
-  if(a.response) card.insertAdjacentHTML("beforeend",`<div style="font-size:13px;margin-top:8px"><b>Response:</b> ${esc(a.response)}</div>`);
-  if(actionable){
-    const acts=el("div","sheet-actions");
-    const deny=el("button","btn ghost sm","Deny"); deny.onclick=()=>openResolve(a,"denied");
-    const appr=el("button","btn sm","Approve & fix"); appr.style.flex="1"; appr.onclick=()=>openResolve(a,"approved");
-    acts.append(deny,appr); card.appendChild(acts);
-  }
+  card.innerHTML=`<div class="row" style="justify-content:space-between"><div><div style="font-weight:800;font-size:15.5px">${esc(who)}</div><div class="sub muted" style="font-size:12.5px">${esc(cls)} · ${mk.date?fmtDate(mk.date):""}</div></div><span class="pill p-${a.status}">${a.status}</span></div>
+    <div style="margin-top:9px"><span class="tag">marked: ${mk.status?STATUS[mk.status].label:"—"}</span></div>
+    <div style="background:var(--surface2);border-radius:13px;padding:12px;font-size:14px;line-height:1.45;margin-top:10px">${esc(a.message||"(no reason given)")}</div>`;
+  if(a.response) card.insertAdjacentHTML("beforeend",`<div style="font-size:13px;margin-top:9px"><b>Response:</b> ${esc(a.response)}</div>`);
+  if(actionable){ const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1"; const deny=el("button","btn ghost sm","Deny"); deny.onclick=()=>openResolve(a,"denied"); const ok=el("button","btn sm","Approve & fix"); ok.onclick=()=>openResolve(a,"approved"); A.append(sp,deny,ok); card.appendChild(A); }
   return card;
 }
-function openResolve(a, decision){
-  openSheet(sh=>{
-    const m=a.marks||{};
-    sh.appendChild(el("h3",null, decision==="approved"?"Approve appeal":"Deny appeal"));
-    let newStatus=m.status;
-    if(decision==="approved"){
-      sh.appendChild(el("div","field",`<label>Change the mark to</label>`));
-      const set=el("div","statusset");
-      STATUS_KEYS.forEach(k=>{ const b=el("button",(newStatus===k?"on":""),STATUS[k].label); if(newStatus===k){b.style.background=STATUS[k].color;b.style.borderColor=STATUS[k].color;}
-        b.onclick=()=>{ newStatus=k; [...set.children].forEach(c=>{c.className="";c.style.background="";c.style.borderColor="";}); b.className="on"; b.style.background=STATUS[k].color; b.style.borderColor=STATUS[k].color; };
-        set.appendChild(b); });
-      sh.appendChild(set);
-    }
-    const fr=el("div","field"); fr.style.marginTop="12px"; fr.innerHTML=`<label>Note to student (optional)</label>`; const ta=el("textarea"); ta.rows=2; fr.appendChild(ta); sh.appendChild(fr);
-    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
-    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
-    const sv=el("button","btn sm",decision==="approved"?"Approve":"Deny");
-    sv.onclick=async()=>{ const { error }=await resolveAppeal(a, decision, ta.value.trim(), newStatus);
-      if(error){ toast(error.message); return; } closeSheet(); toast(decision==="approved"?"Approved & mark updated":"Appeal denied"); render(); };
-    A.append(sp,cn,sv); sh.appendChild(A);
-  });
+function openResolve(a,decision){
+  openSheet(sh=>{ const mk=a.marks||{}; sh.appendChild(el("h3",null,decision==="approved"?"Approve appeal":"Deny appeal")); let ns=mk.status;
+    if(decision==="approved"){ sh.appendChild(el("div","field",`<label>Change the mark to</label>`)); const set=el("div","statusset"); SKEYS.forEach(k=>{ const b=el("button",ns===k?"on":"",`<span class="d" style="background:${STATUS[k].c}"></span>${STATUS[k].label}`); if(ns===k){b.style.background=STATUS[k].c;b.style.borderColor=STATUS[k].c;} b.onclick=()=>{ ns=k; set.querySelectorAll("button").forEach(x=>{x.classList.remove("on");x.style.background="";x.style.borderColor="";}); b.classList.add("on"); b.style.background=STATUS[k].c; b.style.borderColor=STATUS[k].c; }; set.appendChild(b); }); sh.appendChild(set); }
+    const fr=el("div","field"); fr.style.marginTop="12px"; fr.innerHTML=`<label>Note to student (optional)</label>`; const ta=el("textarea"); ta.rows=2; ta.style.cssText="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:13px;background:var(--surface2)"; fr.appendChild(ta); sh.appendChild(fr);
+    sheetActions(sh,decision==="approved"?"Approve":"Deny",async()=>{ const { error }=await resolveAppeal(a,decision,ta.value.trim(),ns); if(error){ toast(error.message); return; } closeSheet(); toast(decision==="approved"?"Approved & fixed":"Denied"); refreshPending(); renderContent(); }); });
 }
 
-/* ===================================================================
-   STUDENT HOME — my attendance + appeal
-   =================================================================== */
-async function renderStudentHome(){
-  const wrap=el("div","wrap"); app().appendChild(wrap);
-  const { data:meStudent } = await Q.myStudentRow();
-  if(!meStudent){ wrap.appendChild(el("div","empty","You're signed in, but not linked to a student record yet.<br>Ask your rebbe or the office to add your email to the roster.")); return; }
-  wrap.appendChild(el("h2",null,`Hi, ${esc((meStudent.full_name||"").split(" ")[0]||"there")}`));
-  const { data:marks } = await sb.from("marks").select("*, classes(name, appeals_allowed)").eq("student_id", meStudent.id).order("date",{ascending:false});
-  const { data:myAppeals } = await sb.from("appeals").select("*").eq("student_id", meStudent.id);
-  const appealByMark={}; (myAppeals||[]).forEach(a=>appealByMark[a.mark_id]=a);
-  if(!marks || !marks.length){ wrap.appendChild(el("div","empty","No attendance recorded yet.")); return; }
-  wrap.appendChild(el("div","sec","My attendance"));
-  marks.forEach(m=>{ const row=el("div","listrow");
-    const dot=el("div"); dot.style.cssText=`width:12px;height:12px;border-radius:50%;flex:none;background:${STATUS[m.status].color}`;
-    const body=el("div"); body.style.flex="1";
-    body.innerHTML=`<div class="nm">${esc((m.classes&&m.classes.name)||"Class")}</div><div class="sub">${fmtDate(m.date)} · ${STATUS[m.status].label}${m.minutes_late?` · ${m.minutes_late}m`:""}${m.left_early?" · left early":""}</div>`;
-    row.append(dot,body);
-    const ap=appealByMark[m.id];
-    if(ap){ const pill=el("span","pill p-"+ap.status,ap.status); row.appendChild(pill); }
-    else if(m.classes && m.classes.appeals_allowed!==false){ const b=el("button","btn ghost sm","Appeal"); b.onclick=()=>openAppeal(m, meStudent); row.appendChild(b); }
-    wrap.appendChild(row);
-  });
-}
-function openAppeal(m, meStudent){
-  openSheet(sh=>{
-    sh.appendChild(el("h3",null,"Appeal this mark"));
-    sh.appendChild(el("div","muted",`<div style="margin:-6px 0 12px;font-size:13px;line-height:1.45">${esc((m.classes&&m.classes.name)||"Class")} · ${fmtDate(m.date)} · marked <b>${STATUS[m.status].label}</b>.<br>Explain what happened — your rebbe will review it.</div>`));
-    const fr=el("div","field"); fr.innerHTML=`<label>Your reason</label>`; const ta=el("textarea"); ta.rows=4; ta.placeholder="e.g. I was there but came in the side door…"; fr.appendChild(ta); sh.appendChild(fr);
-    const A=el("div","sheet-actions"); const sp=el("div"); sp.style.flex="1";
-    const cn=el("button","btn ghost sm","Cancel"); cn.onclick=closeSheet;
-    const sv=el("button","btn sm","Submit appeal");
-    sv.onclick=async()=>{ if(!ta.value.trim()){ toast("Add a reason"); return; }
-      const { error }=await createAppeal(m.id, meStudent.id, ta.value.trim());
-      if(error){ toast(error.message); return; } closeSheet(); toast("Appeal submitted"); render(); };
-    A.append(sp,cn,sv); sh.appendChild(A);
-  });
-}
+/* ===== STUDENT REPORT CARD ===== */
+async function renderReport(c){
+  const { data:meS }=await Q.myStudent();
+  if(!meS){ c.appendChild(emptyState("🔗","Not linked yet","You're signed in, but not connected to a student record. Ask your rebbe or the office to add your email to the roster.")); return; }
+  c.appendChild(el("div","h-title","Hi, "+esc((meS.full_name||"there").split(" ")[0])));
+  c.appendChild(el("div","h-sub","Your attendance report."));
+  const { data:marks }=await sb.from("marks").select("*, classes(id,name,pts_ontime,pts_absent,pts_per_min,appeals_allowed)").eq("student_id",meS.id).order("date",{ascending:false});
+  const { data:myAppeals }=await sb.from("appeals").select("*").eq("student_id",meS.id);
+  const apByMark={}; (myAppeals||[]).forEach(a=>apByMark[a.mark_id]=a);
+  if(!marks||!marks.length){ c.appendChild(emptyState("📋","Nothing marked yet","As soon as a rebbe marks you, your report appears here.")); return; }
 
-/* ===================================================================
-   INIT
-   =================================================================== */
+  // group by class
+  const byClass={}; marks.forEach(m=>{ const cid=m.classes?m.classes.id:"?"; (byClass[cid]=byClass[cid]||{cls:m.classes,marks:[]}).marks.push(m); });
+  // overall tiles
+  const all=marks; const cnt=k=>all.filter(m=>m.status===k).length;
+  const overall=el("div","card");
+  overall.innerHTML=`<div class="sec" style="margin:0 0 10px">This term</div>`;
+  const stats=el("div","stats");
+  stats.innerHTML=`<div class="stat"><b style="color:var(--ontime)">${cnt("ontime")}</b><span>on time</span></div><div class="stat"><b style="color:var(--late)">${cnt("late")}</b><span>late</span></div><div class="stat"><b style="color:var(--absent)">${cnt("absent")}</b><span>absent</span></div><div class="stat"><b style="color:var(--excused)">${cnt("excused")}</b><span>excused</span></div>`;
+  overall.appendChild(stats);
+  // attendance bar
+  const total=all.length; const seg=(k)=>total?Math.round(cnt(k)/total*100):0;
+  const bar=el("div","barwrap"); ["ontime","late","absent","excused"].forEach(k=>{ const i=el("i"); i.style.width=seg(k)+"%"; i.style.background=STATUS[k].c; bar.appendChild(i); }); overall.appendChild(bar);
+  c.appendChild(overall);
+
+  // per class
+  c.appendChild(el("div","sec","By class"));
+  Object.values(byClass).forEach(g=>{ if(!g.cls) return; const p=pts(g.marks,g.cls); const row=el("div","listrow");
+    const c1=g.marks.filter(m=>m.status==="ontime").length, c2=g.marks.filter(m=>m.status==="late").length, c3=g.marks.filter(m=>m.status==="absent").length;
+    row.innerHTML=`<div class="avatar">${esc(g.cls.name[0]||"?")}</div><div style="flex:1"><div class="nm">${esc(g.cls.name)}</div><div class="sub">${c1} on time · ${c2} late · ${c3} absent</div></div><div style="font-weight:800;color:${p>=0?"var(--ontime)":"var(--late)"}">${fmtPts(p)}</div>`;
+    c.appendChild(row);
+  });
+
+  // recent marks with appeal
+  c.appendChild(el("div","sec","Recent"));
+  marks.slice(0,40).forEach(m=>{ const row=el("div","listrow"); const dot=el("div"); dot.style.cssText=`width:12px;height:12px;border-radius:50%;flex:none;background:${STATUS[m.status].c}`; const body=el("div"); body.style.flex="1"; body.innerHTML=`<div class="nm" style="font-size:14.5px">${esc(m.classes?m.classes.name:"Class")}</div><div class="sub">${fmtDate(m.date)} · ${STATUS[m.status].label}${m.minutes_late?` · ${m.minutes_late}m`:""}${m.left_early?" · left early":""}</div>`; row.append(dot,body);
+    const ap=apByMark[m.id];
+    if(ap){ row.appendChild(el("span","pill p-"+ap.status,ap.status)); }
+    else if(m.classes&&m.classes.appeals_allowed!==false){ const b=el("button","linkbtn","appeal"); b.onclick=()=>openAppeal(m,meS); row.appendChild(b); }
+    c.appendChild(row);
+  });
+}
+function openAppeal(m,meS){ openSheet(sh=>{ sh.appendChild(el("h3",null,"Appeal this mark")); sh.appendChild(el("div","ssub",`${esc(m.classes?m.classes.name:"Class")} · ${fmtDate(m.date)} · marked ${STATUS[m.status].label}. Explain what happened — your rebbe will review it.`)); const fr=el("div","field"); fr.innerHTML=`<label>Your reason</label>`; const ta=el("textarea"); ta.rows=4; ta.placeholder="e.g. I was there but came in the side door…"; ta.style.cssText="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:13px;background:var(--surface2)"; fr.appendChild(ta); sh.appendChild(fr); sheetActions(sh,"Submit",async()=>{ if(!ta.value.trim()){ toast("Add a reason"); return; } const { error }=await createAppeal(m.id,meS.id,ta.value.trim()); if(error){ toast(error.message); return; } closeSheet(); toast("Appeal submitted"); renderContent(); }); }); }
+
+function emptyState(big,title,sub){ const e=el("div","empty"); e.innerHTML=`<div class="big">${big}</div><div style="font-weight:800;font-size:17px;color:var(--ink);margin-bottom:6px;font-family:Fraunces,serif">${esc(title)}</div><div>${esc(sub)}</div>`; return e; }
+
+/* ===== boot ===== */
 async function boot(){
-  if(!configured){ renderConfigNeeded(); return; }
-  if(!sb){
-    app().innerHTML=`<div class="splash"><div class="mark">⚠️</div><h2>Couldn't connect</h2>
-      <p class="muted" style="max-width:320px;line-height:1.55">The Supabase library didn't load — check your internet connection, then reload. If it keeps happening, open <b>index.html</b> in a text editor and double-check the URL and key you pasted.</p></div>`;
-    return;
-  }
-  // show loading so the page is never blank
+  if(!configured){ configNeeded(); return; }
+  if(!sb){ app().innerHTML=`<div class="splash"><div class="mark">⚠️</div><h2>Couldn't connect</h2><p class="muted" style="max-width:320px;line-height:1.55">The Supabase library didn't load. Check your connection and reload.</p></div>`; return; }
   app().innerHTML=`<div class="splash"><div class="mark">ה</div><p class="muted" style="margin-top:12px">Loading…</p></div>`;
-  try {
-    me_ = await loadMe();
-    render();
-    sb.auth.onAuthStateChange(async (_e, session)=>{
-      me_ = session ? await loadMe() : null;
-      view = {tab:null, classId:null, sub:"mark", date:todayKey()};
-      render();
-    });
-  } catch(e) {
-    console.error(e);
-    app().innerHTML=`<div class="splash"><div class="mark">⚠️</div><h2>Something went wrong</h2>
-      <p class="muted" style="max-width:320px;line-height:1.55">${esc(e.message||String(e))}<br><br>
-      Make sure you ran both SQL files in Supabase, and that your Project URL and anon key are correct.</p>
-      <button class="btn" style="max-width:200px;margin-top:18px" onclick="location.reload()">Try again</button></div>`;
-  }
+  try{
+    me_=await loadMe();
+    if(me_){
+      if(me_.role==="admin"){ schoolsCache=await listSchools(); view.school=view.school||me_.school_id||(schoolsCache[0]&&schoolsCache[0].id); }
+      if(me_.role!=="student"){ await refreshPending(); }
+      buildShell(); renderContent();
+    } else renderLogin();
+    sb.auth.onAuthStateChange(async(_e,session)=>{ me_=session?await loadMe():null; view={ tab:null, classId:null, sub:"mark", date:today(), brush:"ontime", school:view.school }; if(me_){ if(me_.role==="admin"){ schoolsCache=await listSchools(); view.school=view.school||me_.school_id||(schoolsCache[0]&&schoolsCache[0].id); } if(me_.role!=="student") await refreshPending(); buildShell(); renderContent(); } else renderLogin(); });
+  }catch(e){ console.error(e); app().innerHTML=`<div class="splash"><div class="mark">⚠️</div><h2>Something went wrong</h2><p class="muted" style="max-width:320px;line-height:1.55">${esc(e.message||String(e))}<br><br>Make sure you ran the SQL files in Supabase.</p><button class="btn" style="max-width:200px;margin-top:18px" onclick="location.reload()">Try again</button></div>`; }
 }
-  
-boot()
-  
+boot();
 </script>
 </body>
 </html>
